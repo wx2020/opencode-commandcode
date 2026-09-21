@@ -1,0 +1,65 @@
+{
+  "name": "opencode-commandcode",
+  "version": "1.0.0",
+  "description": "Standard OpenCode Provider & Auth Plugin for CommandCode AI (GOAT Plan) - 384k Output Capacity, Reasoning Effort Control, and Zero Data Retention",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "license": "MIT",
+  "author": "wx2020",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wx2020/opencode-commandcode.git"
+  },
+  "homepage": "https://github.com/wx2020/opencode-commandcode#readme",
+  "bugs": {
+    "url": "https://github.com/wx2020/opencode-commandcode/issues"
+  },
+  "keywords": [
+    "opencode",
+    "commandcode",
+    "plugin",
+    "provider",
+    "auth",
+    "goat-plan",
+    "deepseek-v4.1",
+    "qwen",
+    "glm",
+    "mimo",
+    "ai"
+  ],
+  "bin": {
+    "install-opencode-commandcode": "./scripts/install.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "scripts/",
+    "index.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun run ./scripts/build.ts",
+    "test": "bun test",
+    "typecheck": "bun x tsc --noEmit",
+    "install-plugin": "node ./scripts/install.js",
+    "prepublishOnly": "bun run build && bun test"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "^1.0.0"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.0.0",
+    "@types/node": "^24.6.2",
+    "typescript": "^5.8.0"
+  }
+}

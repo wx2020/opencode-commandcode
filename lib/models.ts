@@ -1,0 +1,181 @@
+import type { CommandCodeModelDefinition } from "./types.js";
+
+/**
+ * 14 High-Capacity Curated Model Lineup for CommandCode GOAT Plan
+ * Accurately synced with models.dev official specifications
+ */
+export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
+  "deepseek/deepseek-v4.1-flash": {
+    name: "DeepSeek V4.1 Flash (GOAT 7x)",
+    limit: { context: 1_000_000, output: 384_000 },
+    cost: { input: 0.021, output: 0.085, cache_read: 0.0004, cache_write: 0 },
+    modalities: { input: ["text", "image"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "Qwen/Qwen3.8-Omni-Flash": {
+    name: "Qwen 3.8 Omni Flash (GOAT 7x)",
+    limit: { context: 1_000_000, output: 131_072 },
+    cost: { input: 0.021, output: 0.067, cache_read: 0.002, cache_write: 0 },
+    modalities: { input: ["text", "image", "video"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "z-ai/glm-5.3-flash": {
+    name: "GLM 5.3 Flash (GOAT 7x)",
+    limit: { context: 1_000_000, output: 131_072 },
+    cost: { input: 0.052, output: 0.178, cache_read: 0.01, cache_write: 0 },
+    modalities: { input: ["text", "image", "video", "pdf"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "xiaomi/mimo-v2.5": {
+    name: "MiMo v2.5 (GOAT 7x)",
+    limit: { context: 1_048_576, output: 131_072 },
+    cost: { input: 0.018, output: 0.055, cache_read: 0.001, cache_write: 0 },
+    modalities: { input: ["text", "image", "audio", "video"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+    },
+  },
+  "meituan/LongCat-2.0": {
+    name: "LongCat 2.0 (GOAT 7x)",
+    limit: { context: 1_048_576, output: 262_144 },
+    cost: { input: 0.025, output: 0.075, cache_read: 0.002, cache_write: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+    reasoning: false,
+  },
+  "MiniMaxAI/MiniMax-M3": {
+    name: "MiniMax M3 (GOAT 7x + 2x Deal)",
+    limit: { context: 524_288, output: 131_072 },
+    cost: { input: 0.015, output: 0.045, cache_read: 0.001, cache_write: 0 },
+    modalities: { input: ["text", "image"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "tencent/hy4-preview": {
+    name: "Tencent Hy4 Preview (GOAT 7x)",
+    limit: { context: 1_048_576, output: 64_000 },
+    cost: { input: 0.03, output: 0.09, cache_read: 0.003, cache_write: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+    },
+  },
+  "moonshotai/Kimi-K2.7-Code": {
+    name: "Kimi K2.7 Code (GOAT 7x)",
+    limit: { context: 262_144, output: 262_144 },
+    cost: { input: 0.035, output: 0.11, cache_read: 0.005, cache_write: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+    },
+  },
+  "stepfun/Step-3.7-Flash": {
+    name: "Step 3.7 Flash (GOAT 7x)",
+    limit: { context: 262_144, output: 256_000 },
+    cost: { input: 0.025, output: 0.08, cache_read: 0.002, cache_write: 0 },
+    modalities: { input: ["text", "image", "video"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+    },
+  },
+  "google/gemini-3.8-flash": {
+    name: "Gemini 3.8 Flash (GOAT 7x)",
+    limit: { context: 1_048_576, output: 65_536 },
+    cost: { input: 0.075, output: 0.3, cache_read: 0.01, cache_write: 0 },
+    modalities: { input: ["text", "image", "video", "audio", "pdf"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "gpt-5.6-luna": {
+    name: "GPT-5.6 Luna (GOAT 7x)",
+    limit: { context: 1_050_000, input: 922_000, output: 128_000 },
+    cost: { input: 0.15, output: 0.6, cache_read: 0.02, cache_write: 0 },
+    modalities: { input: ["text", "image", "pdf"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "meta/muse-spark-1.3-contributor": {
+    name: "Muse Spark 1.3 Contributor (GOAT 7x)",
+    limit: { context: 1_048_576, output: 131_072 },
+    cost: { input: 0.018, output: 0.054, cache_read: 0.001, cache_write: 0 },
+    modalities: { input: ["text", "image", "video", "pdf", "audio"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      medium: { reasoningEffort: "medium" },
+      high: { reasoningEffort: "high" },
+      max: { reasoningEffort: "max" },
+    },
+  },
+  "inclusionai/ling-3.0-flash-sante:free": {
+    name: "Ling 3.0 Flash Sante (Free Tier)",
+    limit: { context: 262_144, output: 32_768 },
+    cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+    reasoning: false,
+  },
+  "poolside/laguna-s-2.1-free": {
+    name: "Laguna S 2.1 (Free Tier)",
+    limit: { context: 262_144, output: 32_768 },
+    cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+    reasoning: true,
+    interleaved: { field: "reasoning_content" },
+    variants: {
+      low: { reasoningEffort: "low" },
+      high: { reasoningEffort: "high" },
+    },
+  },
+};
+
