@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-22T00:28:24.534Z
+ * Last updated: 2026-09-22T00:29:56.545Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -136,12 +136,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text"
       ]
     },
-    "reasoning": false,
-    "variants": {
-      "high": {
-        "reasoningEffort": "high"
-      }
-    }
+    "reasoning": false
   },
   "MiniMaxAI/MiniMax-M3": {
     "name": "MiniMax M3 (GOAT 7x + 2x Deal)",
@@ -432,12 +427,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text"
       ]
     },
-    "reasoning": false,
-    "variants": {
-      "high": {
-        "reasoningEffort": "high"
-      }
-    }
+    "reasoning": false
   },
   "poolside/laguna-s-2.1-free": {
     "name": "Laguna S 2.1 (Free Tier)",

@@ -213,9 +213,9 @@ export async function syncModels(
         lowerId.includes("qwen") ||
         lowerId.includes("glm"));
 
-    // Reasoning Variants
-    let variants = currentDef?.variants;
-    if (devSpec?.reasoning_options) {
+    // Reasoning Variants (only applicable if reasoning is supported)
+    let variants = currentDef?.variants ? { ...currentDef.variants } : undefined;
+    if (isReasoning && devSpec?.reasoning_options) {
       const effortOpt = devSpec.reasoning_options.find(
         (o) => o.type === "effort" && o.values
       );
@@ -225,7 +225,7 @@ export async function syncModels(
         ) as Array<"low" | "medium" | "high" | "max">;
 
         if (validValues.length > 0) {
-          variants = {};
+          variants = variants || {};
           for (const val of validValues) {
             variants[val] = { reasoningEffort: val };
           }
@@ -257,7 +257,7 @@ export async function syncModels(
       },
       reasoning: isReasoning,
       ...(isReasoning ? { interleaved: { field: "reasoning_content" } } : {}),
-      ...(variants ? { variants } : {}),
+      ...(isReasoning && variants && Object.keys(variants).length > 0 ? { variants } : {}),
     };
 
     if (!currentDef) {
