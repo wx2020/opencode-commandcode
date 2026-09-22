@@ -47,71 +47,71 @@ interface ModelsDevSpec {
 }
 
 /**
- * Prunes obsolete/previous-generation models when newer generations exist in the same family.
+ * Prunes obsolete generations and redundant intra-family variants.
+ * Strict Project Rule: Keep at most 1-2 models per family (1 Pro/Max + 1 Flash),
+ * prioritizing ample context (>= 1M tokens).
  */
 export function isOutdatedVersion(modelId: string, availableModelIds: string[]): boolean {
   const lower = modelId.toLowerCase();
 
-  // 1. Gemini: if 3.8 exists, filter out 3.7, 3.6, 3.5, 3.1
+  // 1. Gemini: keep only latest gemini-3.8-flash
   if (lower.includes("gemini")) {
     const has38 = availableModelIds.some((id) => id.toLowerCase().includes("gemini-3.8"));
-    if (
-      has38 &&
-      (lower.includes("3.7") ||
-        lower.includes("3.6") ||
-        lower.includes("3.5") ||
-        lower.includes("3.1"))
-    ) {
-      return true;
-    }
+    if (has38 && !lower.includes("gemini-3.8")) return true;
   }
 
-  // 2. GLM: if 5.3 exists, filter out 5.2, 5.1, 5.0 / glm-5
+  // 2. GLM: keep only GLM-5.3 (Pro) and glm-5.3-flash (Flash)
   if (lower.includes("glm")) {
     const has53 = availableModelIds.some((id) => id.toLowerCase().includes("glm-5.3"));
-    if (
-      has53 &&
-      (lower.includes("5.2") || lower.includes("5.1") || /glm-5(?![.\d])/i.test(lower))
-    ) {
-      return true;
+    if (has53) {
+      if (lower.includes("5.2") || lower.includes("5.1") || /glm-5(?![.\d])/i.test(lower)) return true;
+      if (lower.includes("flashx")) return true; // prune redundant FlashX
     }
   }
 
-  // 3. Qwen: if 3.8 exists, filter out 3.7, 3.6
+  // 3. Qwen: keep only Qwen3.8-Max-0902 (Pro) and Qwen3.8-Omni-Flash (Flash)
   if (lower.includes("qwen")) {
     const has38 = availableModelIds.some(
-      (id) =>
-        id.toLowerCase().includes("qwen3.8") || id.toLowerCase().includes("qwen-3.8")
+      (id) => id.toLowerCase().includes("qwen3.8") || id.toLowerCase().includes("qwen-3.8")
     );
-    if (has38 && (lower.includes("3.7") || lower.includes("3.6"))) {
-      return true;
+    if (has38) {
+      if (lower.includes("3.7") || lower.includes("3.6")) return true;
+      if (lower.includes("27b")) return true;
+      if (lower.includes("qwen3.8-flash") && !lower.includes("omni")) return true;
+      if (lower.includes("qwen3.8-max") && !lower.includes("0902")) return true;
     }
   }
 
-  // 4. DeepSeek: if v4.1 exists, filter out earlier v4 variants (v4-pro, v4-flash, v4-flash-fast)
+  // 4. DeepSeek: keep only deepseek-v4.1-flash (384k output flagship)
   if (lower.includes("deepseek")) {
     const hasV41 = availableModelIds.some((id) => id.toLowerCase().includes("v4.1"));
-    if (hasV41 && lower.includes("v4") && !lower.includes("v4.1")) {
-      return true;
-    }
+    if (hasV41 && !lower.includes("v4.1")) return true;
   }
 
-  // 5. Kimi: if k3 or k2.7 exists, filter out older k2.6 and k2.5
+  // 5. Kimi: keep only Kimi-K3 (Pro) and Kimi-K2.7-Code (Code/Flash)
   if (lower.includes("kimi")) {
     const hasK3orK27 = availableModelIds.some(
       (id) => id.toLowerCase().includes("k3") || id.toLowerCase().includes("k2.7")
     );
-    if (hasK3orK27 && (lower.includes("k2.6") || lower.includes("k2.5"))) {
-      return true;
+    if (hasK3orK27) {
+      if (lower.includes("k2.6") || lower.includes("k2.5")) return true;
+      if (lower.includes("highspeed")) return true; // prune secondary variant
     }
   }
 
-  // 6. MiMo: if v2.6 exists, filter out older v2.5 series
+  // 6. MiMo: keep only mimo-v2.6-pro (Pro) and mimo-v2.6-flash (Flash)
   if (lower.includes("mimo")) {
     const hasV26 = availableModelIds.some((id) => id.toLowerCase().includes("v2.6"));
-    if (hasV26 && lower.includes("v2.5")) {
-      return true;
+    if (hasV26) {
+      if (lower.includes("v2.5")) return true;
+      if (lower.includes("ultraspeed")) return true; // prune secondary variant
     }
+  }
+
+  // 7. Free tier: keep laguna-s-2.1-free, prune ling-3.0
+  if (lower.includes("ling-3.0")) {
+    const hasLaguna = availableModelIds.some((id) => id.toLowerCase().includes("laguna"));
+    if (hasLaguna) return true;
   }
 
   return false;

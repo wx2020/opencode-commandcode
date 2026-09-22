@@ -72,6 +72,24 @@ describe("CommandCode OpenCode Plugin", () => {
       expect(GOAT_MODELS["Qwen/Qwen3.7-Max"]).toBeUndefined();
       expect(GOAT_MODELS["google/gemini-3.7-flash"]).toBeUndefined();
     });
+
+    test("retains exactly 1-2 flagships per family (Pro/Flash) and prunes redundant variants", () => {
+      // Qwen: has Pro and Flash, prunes redundant 27B and duplicate flash
+      expect(GOAT_MODELS["Qwen/Qwen3.8-Max-0902"]).toBeDefined();
+      expect(GOAT_MODELS["Qwen/Qwen3.8-Omni-Flash"]).toBeDefined();
+      expect(GOAT_MODELS["Qwen/Qwen3.8-27B"]).toBeUndefined();
+      expect(GOAT_MODELS["Qwen/Qwen3.8-Flash"]).toBeUndefined();
+
+      // GLM: has Pro and Flash, prunes redundant flashx
+      expect(GOAT_MODELS["zai-org/GLM-5.3"]).toBeDefined();
+      expect(GOAT_MODELS["z-ai/glm-5.3-flash"]).toBeDefined();
+      expect(GOAT_MODELS["z-ai/glm-5.3-flashx"]).toBeUndefined();
+
+      // MiMo: has Pro and Flash, prunes redundant ultraspeed
+      expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro"]).toBeDefined();
+      expect(GOAT_MODELS["xiaomi/mimo-v2.6-flash"]).toBeDefined();
+      expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro-ultraspeed"]).toBeUndefined();
+    });
   });
 
   describe("Plugin Hooks Lifecycle", () => {

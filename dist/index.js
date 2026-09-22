@@ -150,12 +150,7 @@ var GOAT_MODELS = {
         "text"
       ]
     },
-    reasoning: false,
-    variants: {
-      high: {
-        reasoningEffort: "high"
-      }
-    }
+    reasoning: false
   },
   "MiniMaxAI/MiniMax-M3": {
     name: "MiniMax M3 (GOAT 7x + 2x Deal)",
@@ -426,33 +421,6 @@ var GOAT_MODELS = {
       }
     }
   },
-  "inclusionai/ling-3.0-flash-sante:free": {
-    name: "Ling 3.0 Flash Sante (Free Tier)",
-    limit: {
-      context: 262144,
-      output: 32768
-    },
-    cost: {
-      input: 0,
-      output: 0,
-      cache_read: 0,
-      cache_write: 0
-    },
-    modalities: {
-      input: [
-        "text"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: false,
-    variants: {
-      high: {
-        reasoningEffort: "high"
-      }
-    }
-  },
   "poolside/laguna-s-2.1-free": {
     name: "Laguna S 2.1 (Free Tier)",
     limit: {
@@ -496,70 +464,6 @@ var GOAT_MODELS = {
       input: 0.4286,
       output: 2.1429,
       cache_read: 0.0429,
-      cache_write: 0
-    },
-    modalities: {
-      input: [
-        "text",
-        "image",
-        "video"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    },
-    variants: {
-      low: {
-        reasoningEffort: "low"
-      },
-      high: {
-        reasoningEffort: "high"
-      },
-      max: {
-        reasoningEffort: "max"
-      }
-    }
-  },
-  "moonshotai/Kimi-K2.7-Code-Highspeed": {
-    name: "Kimi K2.7 Code HighSpeed",
-    limit: {
-      context: 262000,
-      output: 65536
-    },
-    cost: {
-      input: 0.2714,
-      output: 1.1429,
-      cache_read: 0.0457,
-      cache_write: 0
-    },
-    modalities: {
-      input: [
-        "text",
-        "image"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    }
-  },
-  "z-ai/glm-5.3-flashx": {
-    name: "GLM-5.3 FlashX",
-    limit: {
-      context: 1e6,
-      output: 131072
-    },
-    cost: {
-      input: 0.0529,
-      output: 0.1786,
-      cache_read: 0.0107,
       cache_write: 0
     },
     modalities: {
@@ -657,39 +561,6 @@ var GOAT_MODELS = {
       }
     }
   },
-  "xiaomi/mimo-v2.6-pro-ultraspeed": {
-    name: "MiMo V2.6 Pro UltraSpeed",
-    limit: {
-      context: 1048576,
-      output: 131072
-    },
-    cost: {
-      input: 0.6214,
-      output: 1.2429,
-      cache_read: 0.0051,
-      cache_write: 0
-    },
-    modalities: {
-      input: [
-        "text",
-        "image",
-        "video",
-        "audio"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    },
-    variants: {
-      high: {
-        reasoningEffort: "high"
-      }
-    }
-  },
   "xiaomi/mimo-v2.6-flash": {
     name: "MiMo V2.6 Flash",
     limit: {
@@ -762,93 +633,6 @@ var GOAT_MODELS = {
       },
       max: {
         reasoningEffort: "max"
-      }
-    }
-  },
-  "Qwen/Qwen3.8-Max": {
-    name: "Qwen 3.8 Max",
-    limit: {
-      context: 1e6,
-      output: 65536
-    },
-    cost: {
-      input: 0.2857,
-      output: 0.8571,
-      cache_read: 0.0357,
-      cache_write: 0.3571
-    },
-    modalities: {
-      input: [
-        "text",
-        "image",
-        "video",
-        "pdf"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    }
-  },
-  "Qwen/Qwen3.8-27B": {
-    name: "Qwen 3.8 27B",
-    limit: {
-      context: 262144,
-      output: 32768
-    },
-    cost: {
-      input: 0.0214,
-      output: 0.1,
-      cache_read: 0.0057,
-      cache_write: 0
-    },
-    modalities: {
-      input: [
-        "text",
-        "image",
-        "video"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    }
-  },
-  "Qwen/Qwen3.8-Flash": {
-    name: "Qwen 3.8 Flash",
-    limit: {
-      context: 1e6,
-      output: 131072
-    },
-    cost: {
-      input: 0.02,
-      output: 0.06,
-      cache_read: 0.0023,
-      cache_write: 0.0286
-    },
-    modalities: {
-      input: [
-        "text",
-        "image",
-        "video"
-      ],
-      output: [
-        "text"
-      ]
-    },
-    reasoning: true,
-    interleaved: {
-      field: "reasoning_content"
-    },
-    variants: {
-      high: {
-        reasoningEffort: "high"
       }
     }
   }
@@ -990,4 +774,4 @@ export {
   AUTH_LABELS
 };
 
-//# debugId=D3E7F3451D0D578564756E2164756E21
+//# debugId=BDFD3A881EF7569E64756E2164756E21
