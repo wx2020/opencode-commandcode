@@ -515,16 +515,16 @@ var GOAT_MODELS = {
     }
   },
   "google/gemini-3.8-flash": {
-    name: "Gemini 3.8 Flash (GOAT 7x)",
+    name: "Gemini 3.8 Flash",
     limit: {
       context: 1e6,
       output: 65536
     },
     cost: {
-      input: 0.075,
-      output: 0.3,
-      cache_read: 0.01,
-      cache_write: 0
+      input: 0.1071,
+      output: 0.5357,
+      cache_read: 0.0107,
+      cache_write: 0.006
     },
     modalities: {
       input: [
@@ -745,4 +745,4 @@ export {
   AUTH_LABELS
 };
 
-//# debugId=B173635909F30CD964756E2164756E21
+//# debugId=8BE18E9EEE955CBA64756E2164756E21

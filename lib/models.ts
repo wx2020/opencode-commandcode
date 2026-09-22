@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-22T01:38:17.164Z
+ * Last updated: 2026-09-22T01:43:24.896Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -501,16 +501,16 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "google/gemini-3.8-flash": {
-    "name": "Gemini 3.8 Flash (GOAT 7x)",
+    "name": "Gemini 3.8 Flash",
     "limit": {
       "context": 1000000,
       "output": 65536
     },
     "cost": {
-      "input": 0.075,
-      "output": 0.3,
-      "cache_read": 0.01,
-      "cache_write": 0
+      "input": 0.1071,
+      "output": 0.5357,
+      "cache_read": 0.0107,
+      "cache_write": 0.006
     },
     "modalities": {
       "input": [

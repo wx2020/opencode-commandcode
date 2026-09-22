@@ -47,44 +47,258 @@ interface ModelsDevSpec {
 }
 
 /**
- * Curated and Ordered 18-Model Lineup for CommandCode GOAT Plan.
- * Hierarchical order:
- * 1. High-Quota Flagships (5h Quota >= 4,000, sorted descending by quota)
- * 2. Zero-Cost Free Models (Dual Fallback)
- * 3. Cross-Vendor Benchmark Flagships (1 per other vendor, sorted descending by quota)
+ * Baseline 5-hour quotas from CommandCode official plan metrics.
+ * Future unlisted models automatically estimate quota based on model type & tier.
  */
-export const ORDERED_MODEL_IDS = [
-  // 1. 高配额主力模型 (Quota >= 4000, 降序)
-  "deepseek/deepseek-v4.1-flash",
-  "xiaomi/mimo-v2.6-flash",
-  "meta/muse-spark-1.3-contributor",
-  "meituan/LongCat-2.0",
-  "tencent/hy3-paid",
-  "xiaomi/mimo-v2.6-pro",
-  "Qwen/Qwen3.8-27B",
-  "z-ai/glm-5.3-flash",
-  "Qwen/Qwen3.8-Omni-Flash",
-  "stepfun/Step-3.5-Flash",
-  "gpt-5.6-luna",
-  "MiniMaxAI/MiniMax-M3",
-
-  // 2. 零成本免费模型 (Free Tier 双保底)
-  "poolside/laguna-s-2.1-free",
-  "inclusionai/ling-3.0-flash-sante:free",
-
-  // 3. 跨厂对比模型 (各1款代表作，按配额降序)
-  "moonshotai/Kimi-K2.7-Code",
-  "google/gemini-3.8-flash",
-  "thinkingmachines/inkling-small",
-  "xai/grok-4.6",
-] as const;
+export const KNOWN_QUOTAS: Record<string, number> = {
+  "deepseek/deepseek-v4.1-flash": 76900,
+  "deepseek/deepseek-v4-flash": 76900,
+  "deepseek/deepseek-v4-pro": 4940,
+  "deepseek/deepseek-v4-flash-vision-exp": 25600,
+  "deepseek/deepseek-v4-flash-fast": 2610,
+  "xiaomi/mimo-v2.6-flash": 48700,
+  "xiaomi/mimo-v2.6-pro": 14200,
+  "xiaomi/mimo-v2.5": 48700,
+  "xiaomi/mimo-v2.5-pro": 14200,
+  "meta/muse-spark-1.3-contributor": 45500,
+  "meta/muse-spark-1.2-contributor": 45500,
+  "meta/muse-spark-1.3": 1070,
+  "meta/muse-spark-1.2": 1070,
+  "meituan/LongCat-2.0": 32100,
+  "tencent/hy3-paid": 17700,
+  "tencent/hy4-preview": 3060,
+  "Qwen/Qwen3.8-27B": 12000,
+  "Qwen/Qwen3.8-Omni-Flash": 9860,
+  "Qwen/Qwen3.8-Flash": 9780,
+  "Qwen/Qwen3.8-Max": 654,
+  "Qwen/Qwen3.8-Max-0902": 654,
+  "Qwen/Qwen3.7-Plus": 3560,
+  "Qwen/Qwen3.7-Max": 579,
+  "Qwen/Qwen3.6-Plus": 2750,
+  "z-ai/glm-5.3-flash": 11800,
+  "z-ai/glm-5.3-flashx": 2360,
+  "zai-org/GLM-5.3": 677,
+  "zai-org/GLM-5.2": 2370,
+  "zai-org/GLM-5.2-Fast": 346,
+  "stepfun/Step-3.5-Flash": 8770,
+  "stepfun/Step-3.7-Flash": 4180,
+  "gpt-5.6-luna": 7400,
+  "gpt-5.6-sol": 1040,
+  "MiniMaxAI/MiniMax-M3": 6930,
+  "moonshotai/Kimi-K2.7-Code": 2710,
+  "moonshotai/Kimi-K3": 490,
+  "moonshotai/Kimi-K2.7-Code-Highspeed": 452,
+  "google/gemini-3.8-flash": 1960,
+  "google/gemini-3.7-flash": 1960,
+  "thinkingmachines/inkling-small": 1770,
+  "thinkingmachines/inkling": 989,
+  "xai/grok-4.6": 360,
+  "xai/grok-4.5": 360,
+};
 
 /**
- * Prunes obsolete generations, redundant intra-family variants,
- * and models that do not meet the 3-tier curation rules.
+ * Baseline quotas and latest generation anchors for recognized families.
+ * Unlisted future generations (e.g. v4.2, 3.9) automatically inherit family quota benchmarks.
  */
+export const FAMILY_BASE_QUOTAS: Record<string, { latestVer: number; quota: number }> = {
+  deepseek: { latestVer: 4.1, quota: 76900 },
+  mimo: { latestVer: 2.6, quota: 48700 },
+  meta: { latestVer: 1.3, quota: 45500 },
+  meituan: { latestVer: 2.0, quota: 32100 },
+  tencent: { latestVer: 3.0, quota: 17700 },
+  qwen: { latestVer: 3.8, quota: 10000 },
+  glm: { latestVer: 5.3, quota: 11800 },
+  stepfun: { latestVer: 3.5, quota: 8770 },
+  openai: { latestVer: 5.6, quota: 7400 },
+  minimax: { latestVer: 3.0, quota: 6930 },
+  google: { latestVer: 3.8, quota: 1960 },
+  kimi: { latestVer: 2.7, quota: 2710 },
+  thinkingmachines: { latestVer: 1.0, quota: 1770 },
+  xai: { latestVer: 4.6, quota: 360 },
+};
+
+export interface ModelMetadata {
+  id: string;
+  family: string;
+  isFree: boolean;
+  type: "Pro" | "Flash";
+  version: number;
+  quota: number;
+}
+
+export function extractModelVersion(id: string): number {
+  const lower = id.toLowerCase();
+  const m = lower.match(/(?:[vmk]|\b)(\d+(?:\.\d+)?)/i);
+  if (m) return parseFloat(m[1]);
+  const anyNum = lower.match(/(\d+(?:\.\d+)?)/);
+  return anyNum ? parseFloat(anyNum[1]) : 1.0;
+}
+
+export function parseModelMetadata(id: string): ModelMetadata {
+  const lower = id.toLowerCase();
+  let family = "other";
+  if (lower.includes("deepseek")) family = "deepseek";
+  else if (lower.includes("mimo") || lower.includes("xiaomi")) family = "mimo";
+  else if (lower.includes("muse") || lower.includes("meta/")) family = "meta";
+  else if (lower.includes("longcat") || lower.includes("meituan")) family = "meituan";
+  else if (lower.includes("hy") || lower.includes("tencent")) family = "tencent";
+  else if (lower.includes("qwen")) family = "qwen";
+  else if (lower.includes("glm") || lower.includes("z-ai") || lower.includes("zai-org")) family = "glm";
+  else if (lower.includes("step")) family = "stepfun";
+  else if (lower.includes("gpt") || lower.includes("openai")) family = "openai";
+  else if (lower.includes("minimax")) family = "minimax";
+  else if (lower.includes("kimi") || lower.includes("moonshot")) family = "kimi";
+  else if (lower.includes("gemini") || lower.includes("google")) family = "google";
+  else if (lower.includes("inkling") || lower.includes("thinkingmachines")) family = "thinkingmachines";
+  else if (lower.includes("grok") || lower.includes("xai")) family = "xai";
+  else if (lower.includes("laguna") || lower.includes("poolside")) family = "poolside";
+  else if (lower.includes("ling") || lower.includes("inclusionai")) family = "inclusionai";
+  else if (lower.includes("claude")) family = "anthropic";
+
+  const isFree = lower.includes("free");
+  let type: "Pro" | "Flash" = "Pro";
+  if (
+    lower.includes("flash") ||
+    lower.includes("27b") ||
+    lower.includes("small") ||
+    lower.includes("fast") ||
+    lower.includes("hy3") ||
+    lower.includes("longcat")
+  ) {
+    type = "Flash";
+  }
+
+  const version = extractModelVersion(id);
+
+  // Resolve quota:
+  // 1. Free models = 0
+  // 2. Known model = exact known quota
+  // 3. New flagship generation in recognized family = inherits family base quota
+  // 4. Otherwise = 0
+  let quota = 0;
+  if (!isFree) {
+    if (KNOWN_QUOTAS[id] !== undefined) {
+      quota = KNOWN_QUOTAS[id];
+    } else {
+      const base = FAMILY_BASE_QUOTAS[family];
+      // Only inherit if strictly newer generation of high-quota family
+      if (base && version > base.latestVer && base.quota >= 4000) {
+        quota = base.quota;
+      }
+    }
+  }
+
+  return { id, family, isFree, type, version, quota };
+}
+
+/**
+ * Dynamically selects and orders the optimal model lineup from any available model IDs.
+ * Rules:
+ * 1. Tier 1: High-quota flagships (quota >= 4000, reverse-quota logic, 1 Pro + 1 Flash, sorted descending)
+ * 2. Tier 2: Free models (Zero cost dual fallback)
+ * 3. Tier 3: Cross-vendor benchmarks (quota < 4000, 1 per other vendor, reverse-quota logic, sorted descending)
+ */
+export function selectCuratedLineup(availableModelIds: string[]): string[] {
+  const all = availableModelIds
+    .map(parseModelMetadata)
+    .filter((m) => m.family !== "anthropic");
+
+  // Tier 2: Free models
+  const freeModels = all.filter((m) => m.isFree);
+
+  // Paid Models (Tier 1 & 3 candidates)
+  const paidModels = all.filter((m) => !m.isFree);
+
+  const familyGroups = new Map<string, ModelMetadata[]>();
+  for (const m of paidModels) {
+    const list = familyGroups.get(m.family) || [];
+    list.push(m);
+    familyGroups.set(m.family, list);
+  }
+
+  const highQuotaFlagships: ModelMetadata[] = [];
+  const crossVendorBenchmarks: ModelMetadata[] = [];
+
+  for (const [fam, models] of familyGroups.entries()) {
+    const highQuotaModels = models.filter((m) => m.quota >= 4000);
+
+    if (highQuotaModels.length > 0) {
+      // High Quota family:
+      // Check reverse-quota rule: if older version has higher quota than newer version, retain older!
+      const versions = [...new Set(highQuotaModels.map((m) => m.version))].sort((a, b) => b - a);
+      let selectedVersion = versions[0];
+
+      for (let i = 1; i < versions.length; i++) {
+        const olderVer = versions[i];
+        const newerVer = versions[i - 1];
+        const olderMaxQuota = Math.max(...highQuotaModels.filter((m) => m.version === olderVer).map((m) => m.quota));
+        const newerMaxQuota = Math.max(...highQuotaModels.filter((m) => m.version === newerVer).map((m) => m.quota));
+        if (olderMaxQuota > newerMaxQuota) {
+          selectedVersion = olderVer;
+          break;
+        }
+      }
+
+      const candidateModels = highQuotaModels.filter((m) => m.version === selectedVersion);
+      // Exclude redundant variants
+      const filtered = candidateModels.filter((m) => {
+        const lid = m.id.toLowerCase();
+        if (lid.includes("flashx") || lid.includes("ultraspeed") || lid.includes("fast") || lid.includes("vision-exp")) return false;
+        if (lid.includes("qwen3.8-flash") && !lid.includes("omni")) return false;
+        return true;
+      });
+
+      // Keep at most 1 Pro and 1 Flash
+      const pros = filtered.filter((m) => m.type === "Pro").sort((a, b) => b.quota - a.quota);
+      const flashes = filtered.filter((m) => m.type === "Flash").sort((a, b) => b.quota - a.quota);
+      if (pros.length > 0) highQuotaFlagships.push(pros[0]);
+      if (flashes.length > 0) {
+        if (fam === "qwen") {
+          flashes.forEach((f) => highQuotaFlagships.push(f));
+        } else {
+          highQuotaFlagships.push(flashes[0]);
+        }
+      }
+    } else {
+      // Cross-vendor benchmark candidate: pick 1 model per family with quota > 0
+      const validModels = models.filter((m) => m.quota > 0);
+      if (validModels.length === 0) continue;
+
+      // Apply reverse-quota rule among models in family
+      const versions = [...new Set(validModels.map((m) => m.version))].sort((a, b) => b - a);
+      let selectedVersion = versions[0];
+      for (let i = 1; i < versions.length; i++) {
+        const olderVer = versions[i];
+        const newerVer = versions[i - 1];
+        const olderMaxQuota = Math.max(...validModels.filter((m) => m.version === olderVer).map((m) => m.quota));
+        const newerMaxQuota = Math.max(...validModels.filter((m) => m.version === newerVer).map((m) => m.quota));
+        if (olderMaxQuota > newerMaxQuota) {
+          selectedVersion = olderVer;
+          break;
+        }
+      }
+      const candidates = validModels.filter(
+        (m) => m.version === selectedVersion && !m.id.toLowerCase().includes("highspeed")
+      );
+      candidates.sort((a, b) => b.quota - a.quota);
+      if (candidates.length > 0) {
+        crossVendorBenchmarks.push(candidates[0]);
+      }
+    }
+  }
+
+  // Tier 1 descending by quota
+  highQuotaFlagships.sort((a, b) => b.quota - a.quota);
+  // Tier 3 descending by quota
+  crossVendorBenchmarks.sort((a, b) => b.quota - a.quota);
+
+  return [...highQuotaFlagships, ...freeModels, ...crossVendorBenchmarks].map((m) => m.id);
+}
+
 export function isOutdatedVersion(modelId: string, availableModelIds?: string[]): boolean {
-  return !(ORDERED_MODEL_IDS as readonly string[]).includes(modelId);
+  const ids = availableModelIds || Object.keys(KNOWN_QUOTAS);
+  const curated = selectCuratedLineup(ids);
+  return !curated.includes(modelId);
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -129,6 +343,8 @@ export async function syncModels(
     new Set([...Object.keys(CURRENT_MODELS), ...rawModels.map((m) => m.id)])
   );
 
+  const curatedModelIds = selectCuratedLineup(allAvailableIds);
+
   const updatedModels: Record<string, CommandCodeModelDefinition> = {};
   const added: string[] = [];
   const updated: string[] = [];
@@ -136,13 +352,13 @@ export async function syncModels(
 
   // 1. Identify and record pruned models that were previously active
   for (const prevId of Object.keys(CURRENT_MODELS)) {
-    if (isOutdatedVersion(prevId)) {
+    if (!curatedModelIds.includes(prevId)) {
       pruned.push(prevId);
     }
   }
 
-  // 2. Synchronize and populate models strictly in ORDERED_MODEL_IDS order
-  for (const modelId of ORDERED_MODEL_IDS) {
+  // 2. Synchronize and populate models strictly in dynamically curated order
+  for (const modelId of curatedModelIds) {
     const ccModel = rawModels.find((m) => m.id === modelId);
     const currentDef = CURRENT_MODELS[modelId];
 
