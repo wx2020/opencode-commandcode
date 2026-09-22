@@ -1,0 +1,70 @@
+name: Model Sync & Auto Release
+
+on:
+  schedule:
+    # Runs daily at 00:00 UTC (08:00 CST)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force release even if no model changes are detected'
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/models.ts'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun environment
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Configure Git Author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Synchronize Models with CommandCode & models.dev
+        id: sync
+        run: |
+          FORCE_FLAG="${{ github.event.inputs.force_release == 'true' && '--force' || '' }}"
+          bun run ./scripts/sync-models.ts $FORCE_FLAG
+
+      - name: Check for Changes
+        id: check_changes
+        run: |
+          if [ -n "$(git status --porcelain)" ] || [ "${{ github.event.inputs.force_release }}" = "true" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Model changes or force release detected."
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected. Skipping release."
+          fi
+
+      - name: Run Test Suite
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: bun test
+
+      - name: Execute Release Pipeline
+        if: steps.check_changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FORCE_FLAG="${{ github.event.inputs.force_release == 'true' && '--force' || '' }}"
+          bun run ./scripts/release.ts --no-sync $FORCE_FLAG

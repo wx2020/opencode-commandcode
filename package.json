@@ -51,6 +51,8 @@
     "build": "bun run ./scripts/build.ts",
     "test": "bun test",
     "typecheck": "bun x tsc --noEmit",
+    "sync-models": "bun run ./scripts/sync-models.ts",
+    "release": "bun run ./scripts/release.ts",
     "install-plugin": "node ./scripts/install.js",
     "prepublishOnly": "bun run build && bun test"
   },

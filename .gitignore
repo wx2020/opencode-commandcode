@@ -4,4 +4,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-
+sync-summary.json
+*.tmp.md
+*.tar.gz

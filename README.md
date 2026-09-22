@@ -138,7 +138,9 @@ opencode-commandcode/
 │   └── fetch.ts             # 请求中继、URL 动态重写与安全标头注入器
 ├── scripts/
 │   ├── build.ts             # Bun 构建与类型生成脚本
-│   └── install.js           # 跨平台一键部署脚本
+│   ├── install.js           # 跨平台一键部署脚本
+│   ├── sync-models.ts       # CommandCode 与 models.dev 模型实时同步脚本
+│   └── release.ts           # 自动版本递增、测试打包与 GitHub Release 发布脚本
 ├── test/
 │   └── index.test.ts        # 完整单元测试集
 ├── index.ts                 # 插件主入口 (Default Export Hooks)
@@ -148,11 +150,33 @@ opencode-commandcode/
 
 ---
 
+## 🤖 自动化模型同步与发版机制 (Continuous Sync & Release)
+
+本项目配置了端到端的 **模型自动探测与版本自动发布流水线**（GitHub Actions [`.github/workflows/auto-release.yml`](.github/workflows/auto-release.yml)）：
+
+1. **自动巡检与数据融合**：
+   - 定时从 `api.commandcode.ai/provider/v1/models` 抓取最新支持模型；
+   - 自动关联 `models.dev` 补齐真实的 384k 输出上限、多模态支持与 reasoning effort 分级档位。
+2. **自动化触发源**：
+   - **每日自动定时任务**：每日 UTC 00:00 自动比对上游更新；
+   - **手动一键触发 (Workflow Dispatch)**：支持在 GitHub 仓库界面随时点击 `Run workflow` 触发；
+   - **推送触发**：修改 `lib/models.ts` 推送至 `main` 分支时自动触发。
+3. **全自动发版闭环**：
+   检测到变动 -> 重新生成模型代码 -> 递增语义化版本号 -> 运行测试与产物编译 -> 创建 Git Tag -> 自动发布官方 GitHub Release 并上传独立资产包。
+
+---
+
 ## 🛠️ 本地开发与测试
 
 ```bash
 # 运行单元测试
 bun test
+
+# 检查/同步最新 CommandCode 模型矩阵
+bun run sync-models
+
+# 执行自动化版本发布流水线 (测试 + 打包 + 打 Tag + 发布)
+bun run release
 
 # 构建产物
 bun run build
