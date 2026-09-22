@@ -26,6 +26,14 @@ function runCommand(cmd: string, args: string[], options: { cwd?: string } = {})
   }
 }
 
+function getAvailableTags(): Set<string> {
+  const res = spawnSync("git", ["tag", "-l"], { cwd: rootDir, encoding: "utf8" });
+  if (res.status === 0 && res.stdout) {
+    return new Set(res.stdout.split("\n").map((t) => t.trim()).filter(Boolean));
+  }
+  return new Set();
+}
+
 function bumpVersion(currentVersion: string, type: "patch" | "minor" | "major" = "patch"): string {
   const parts = currentVersion.split(".").map(Number);
   if (parts.length !== 3 || parts.some(isNaN)) {
@@ -71,10 +79,15 @@ export async function runRelease(options: {
     return;
   }
 
-  // Read current package.json
+  // Read current package.json and ensure tag uniqueness
   const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
   const prevVersion = pkg.version;
-  const newVersion = bumpVersion(prevVersion, options.bumpType || "patch");
+  const existingTags = getAvailableTags();
+  let candidateVersion = bumpVersion(prevVersion, options.bumpType || "patch");
+  while (existingTags.has(`v${candidateVersion}`)) {
+    candidateVersion = bumpVersion(candidateVersion, "patch");
+  }
+  const newVersion = candidateVersion;
   const newTag = `v${newVersion}`;
 
   console.log(`📦 Bumping version: ${prevVersion} -> ${newVersion} (${newTag})`);
@@ -91,8 +104,8 @@ export async function runRelease(options: {
 
   // Generate Release Notes
   let notes = `## OpenCode CommandCode Plugin ${newTag}\n\n`;
-  notes += `### 🔄 Model Lineup Updates\n`;
-  if (summary && (summary.added?.length || summary.updated?.length)) {
+  notes += `### 🔄 Model Lineup & Capabilities Updates\n`;
+  if (summary && (summary.added?.length || summary.updated?.length || summary.pruned?.length)) {
     if (summary.added?.length) {
       notes += `\n**✨ Newly Added Models:**\n`;
       summary.added.forEach((m: string) => (notes += `- \`${m}\`\n`));
@@ -100,6 +113,10 @@ export async function runRelease(options: {
     if (summary.updated?.length) {
       notes += `\n**⚡ Updated Models & Capabilities:**\n`;
       summary.updated.forEach((m: string) => (notes += `- \`${m}\`\n`));
+    }
+    if (summary.pruned?.length) {
+      notes += `\n**🗑️ Obsolete Previous-Generation Versions Pruned:**\n`;
+      summary.pruned.forEach((m: string) => (notes += `- \`${m}\`\n`));
     }
   } else {
     notes += `- Maintenance update and model synchronization.\n`;
