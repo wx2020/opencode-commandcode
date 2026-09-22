@@ -14,14 +14,15 @@ const pkgPath = join(rootDir, "package.json");
 const summaryPath = join(rootDir, "sync-summary.json");
 
 function runCommand(cmd: string, args: string[], options: { cwd?: string } = {}) {
-  console.log(`> ${cmd} ${args.join(" ")}`);
-  const res = spawnSync(cmd, args, {
+  const formattedArgs = args.map((a) => (a.includes(" ") && !a.startsWith('"') ? `"${a}"` : a));
+  console.log(`> ${cmd} ${formattedArgs.join(" ")}`);
+  const res = spawnSync(cmd, formattedArgs, {
     cwd: options.cwd || rootDir,
     stdio: "inherit",
     shell: true,
   });
   if (res.status !== 0) {
-    throw new Error(`Command failed with exit code ${res.status}: ${cmd} ${args.join(" ")}`);
+    throw new Error(`Command failed with exit code ${res.status}: ${cmd} ${formattedArgs.join(" ")}`);
   }
 }
 
@@ -163,3 +164,4 @@ if (import.meta.main) {
     process.exit(1);
   });
 }
+

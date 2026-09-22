@@ -68,3 +68,4 @@ jobs:
         run: |
           FORCE_FLAG="${{ github.event.inputs.force_release == 'true' && '--force' || '' }}"
           bun run ./scripts/release.ts --no-sync $FORCE_FLAG
+
