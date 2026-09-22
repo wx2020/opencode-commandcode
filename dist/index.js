@@ -22,7 +22,7 @@ var AUTH_LABELS = {
 // lib/models.ts
 var GOAT_MODELS = {
   "deepseek/deepseek-v4.1-flash": {
-    name: "DeepSeek V4.1 Flash (GOAT 7x)",
+    name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
       output: 384000
@@ -73,9 +73,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio"
+        "image"
       ],
       output: [
         "text"
@@ -88,11 +86,20 @@ var GOAT_MODELS = {
     variants: {
       high: {
         reasoningEffort: "high"
+      },
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      max: {
+        reasoningEffort: "max"
       }
     }
   },
   "meta/muse-spark-1.3-contributor": {
-    name: "Muse Spark 1.3 Contributor (GOAT 7x)",
+    name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
       output: 943718
@@ -132,7 +139,7 @@ var GOAT_MODELS = {
     }
   },
   "meituan/LongCat-2.0": {
-    name: "LongCat 2.0 (GOAT 7x)",
+    name: "LongCat 2.0",
     limit: {
       context: 1048576,
       output: 262144
@@ -190,9 +197,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio"
+        "image"
       ],
       output: [
         "text"
@@ -205,6 +210,15 @@ var GOAT_MODELS = {
     variants: {
       high: {
         reasoningEffort: "high"
+      },
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      max: {
+        reasoningEffort: "max"
       }
     }
   },
@@ -236,7 +250,7 @@ var GOAT_MODELS = {
     }
   },
   "z-ai/glm-5.3-flash": {
-    name: "GLM 5.3 Flash (GOAT 7x)",
+    name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
       output: 131072
@@ -275,7 +289,7 @@ var GOAT_MODELS = {
     }
   },
   "Qwen/Qwen3.8-Omni-Flash": {
-    name: "Qwen 3.8 Omni Flash (GOAT 7x)",
+    name: "Qwen 3.8 Omni Flash",
     limit: {
       context: 1e6,
       output: 131072
@@ -334,7 +348,7 @@ var GOAT_MODELS = {
     }
   },
   "gpt-5.6-luna": {
-    name: "GPT-5.6 Luna (GOAT 7x)",
+    name: "GPT-5.6 Luna",
     limit: {
       context: 1050000,
       output: 128000
@@ -375,7 +389,7 @@ var GOAT_MODELS = {
     }
   },
   "MiniMaxAI/MiniMax-M3": {
-    name: "MiniMax M3 (GOAT 7x + 2x Deal)",
+    name: "MiniMax M3",
     limit: {
       context: 1e6,
       output: 1048576
@@ -414,7 +428,7 @@ var GOAT_MODELS = {
     }
   },
   "poolside/laguna-s-2.1-free": {
-    name: "Laguna S 2.1 (Free Tier)",
+    name: "Laguna S 2.1 (Free)",
     limit: {
       context: 256000,
       output: 32768
@@ -447,7 +461,7 @@ var GOAT_MODELS = {
     }
   },
   "inclusionai/ling-3.0-flash-sante:free": {
-    name: "Ling 3.0 Flash Sante",
+    name: "Ling 3.0 Flash Sante (Free)",
     limit: {
       context: 262144,
       output: 32768
@@ -477,7 +491,7 @@ var GOAT_MODELS = {
     }
   },
   "moonshotai/Kimi-K2.7-Code": {
-    name: "Kimi K2.7 Code (GOAT 7x)",
+    name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
       output: 262144
@@ -745,4 +759,4 @@ export {
   AUTH_LABELS
 };
 
-//# debugId=8BE18E9EEE955CBA64756E2164756E21
+//# debugId=0045B5D69713176164756E2164756E21

@@ -301,6 +301,27 @@ export function isOutdatedVersion(modelId: string, availableModelIds?: string[])
   return !curated.includes(modelId);
 }
 
+/**
+ * Format clean display name for OpenCode TUI / CLI.
+ * Strips all promotional suffixes like (GOAT 7x) or (2x Deal).
+ * Only appends " (Free)" for zero-cost models.
+ */
+export function formatDisplayName(modelId: string, rawName?: string): string {
+  const isFree = modelId.toLowerCase().includes("free");
+  let name = rawName || modelId.split("/").pop() || modelId;
+
+  name = name
+    .replace(/\s*\((?:GOAT\s*\d+x(?:\s*\+\s*\d+x\s*Deal)?|GOAT\s*7x)\)/gi, "")
+    .replace(/\s*\(Free(?:\s*Tier)?\)/gi, "")
+    .trim();
+
+  if (isFree) {
+    return `${name} (Free)`;
+  }
+
+  return name;
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url, {
     headers: { "User-Agent": "opencode-commandcode-syncer/1.0" },
@@ -442,7 +463,7 @@ export async function syncModels(
         };
 
     const newDef: CommandCodeModelDefinition = {
-      name: currentDef?.name || ccModel?.name || `${modelId} (GOAT 7x)`,
+      name: formatDisplayName(modelId, currentDef?.name || ccModel?.name),
       limit: {
         context: contextLimit,
         output: outputLimit,

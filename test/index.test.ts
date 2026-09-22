@@ -102,6 +102,20 @@ describe("CommandCode OpenCode Plugin", () => {
       expect(GOAT_MODELS["poolside/laguna-s-2.1-free"]).toBeDefined();
       expect(GOAT_MODELS["inclusionai/ling-3.0-flash-sante:free"]).toBeDefined();
     });
+
+    test("strips all (GOAT 7x) suffixes and only labels Free models", () => {
+      for (const [id, model] of Object.entries(GOAT_MODELS)) {
+        expect(model.name).not.toContain("GOAT");
+        expect(model.name).not.toContain("7x");
+        expect(model.name).not.toContain("Deal");
+
+        if (id.includes("free")) {
+          expect(model.name).toContain("(Free)");
+        } else {
+          expect(model.name).not.toContain("(Free)");
+        }
+      }
+    });
   });
 
   describe("Plugin Hooks Lifecycle", () => {

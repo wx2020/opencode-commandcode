@@ -4,11 +4,11 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-22T02:14:50.111Z
+ * Last updated: 2026-09-22T03:24:54.490Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
-    "name": "DeepSeek V4.1 Flash (GOAT 7x)",
+    "name": "DeepSeek V4.1 Flash",
     "limit": {
       "context": 1000000,
       "output": 384000
@@ -59,9 +59,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video",
-        "audio"
+        "image"
       ],
       "output": [
         "text"
@@ -74,11 +72,20 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "variants": {
       "high": {
         "reasoningEffort": "high"
+      },
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "max": {
+        "reasoningEffort": "max"
       }
     }
   },
   "meta/muse-spark-1.3-contributor": {
-    "name": "Muse Spark 1.3 Contributor (GOAT 7x)",
+    "name": "Muse Spark 1.3 Contributor",
     "limit": {
       "context": 1048576,
       "output": 943718
@@ -118,7 +125,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "meituan/LongCat-2.0": {
-    "name": "LongCat 2.0 (GOAT 7x)",
+    "name": "LongCat 2.0",
     "limit": {
       "context": 1048576,
       "output": 262144
@@ -176,9 +183,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video",
-        "audio"
+        "image"
       ],
       "output": [
         "text"
@@ -191,6 +196,15 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "variants": {
       "high": {
         "reasoningEffort": "high"
+      },
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "max": {
+        "reasoningEffort": "max"
       }
     }
   },
@@ -222,7 +236,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "z-ai/glm-5.3-flash": {
-    "name": "GLM 5.3 Flash (GOAT 7x)",
+    "name": "GLM 5.3 Flash",
     "limit": {
       "context": 1048576,
       "output": 131072
@@ -261,7 +275,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "Qwen/Qwen3.8-Omni-Flash": {
-    "name": "Qwen 3.8 Omni Flash (GOAT 7x)",
+    "name": "Qwen 3.8 Omni Flash",
     "limit": {
       "context": 1000000,
       "output": 131072
@@ -320,7 +334,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "gpt-5.6-luna": {
-    "name": "GPT-5.6 Luna (GOAT 7x)",
+    "name": "GPT-5.6 Luna",
     "limit": {
       "context": 1050000,
       "output": 128000
@@ -361,7 +375,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "MiniMaxAI/MiniMax-M3": {
-    "name": "MiniMax M3 (GOAT 7x + 2x Deal)",
+    "name": "MiniMax M3",
     "limit": {
       "context": 1000000,
       "output": 1048576
@@ -400,7 +414,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "poolside/laguna-s-2.1-free": {
-    "name": "Laguna S 2.1 (Free Tier)",
+    "name": "Laguna S 2.1 (Free)",
     "limit": {
       "context": 256000,
       "output": 32768
@@ -433,7 +447,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "inclusionai/ling-3.0-flash-sante:free": {
-    "name": "Ling 3.0 Flash Sante",
+    "name": "Ling 3.0 Flash Sante (Free)",
     "limit": {
       "context": 262144,
       "output": 32768
@@ -463,7 +477,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     }
   },
   "moonshotai/Kimi-K2.7-Code": {
-    "name": "Kimi K2.7 Code (GOAT 7x)",
+    "name": "Kimi K2.7 Code",
     "limit": {
       "context": 256000,
       "output": 262144
