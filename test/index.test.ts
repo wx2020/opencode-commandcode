@@ -60,10 +60,17 @@ describe("CommandCode OpenCode Plugin", () => {
       expect(ds.reasoning).toBe(true);
     });
 
-    test("xiaomi/mimo-v2.5 has authentic reasoning capability", () => {
-      const mimo = GOAT_MODELS["xiaomi/mimo-v2.5"];
+    test("xiaomi/mimo-v2.6-pro has authentic reasoning capability", () => {
+      const mimo = GOAT_MODELS["xiaomi/mimo-v2.6-pro"];
       expect(mimo).toBeDefined();
       expect(mimo.reasoning).toBe(true);
+    });
+
+    test("automatically prunes obsolete previous-generation versions", () => {
+      expect(GOAT_MODELS["xiaomi/mimo-v2.5"]).toBeUndefined();
+      expect(GOAT_MODELS["deepseek/deepseek-v4-flash"]).toBeUndefined();
+      expect(GOAT_MODELS["Qwen/Qwen3.7-Max"]).toBeUndefined();
+      expect(GOAT_MODELS["google/gemini-3.7-flash"]).toBeUndefined();
     });
   });
 
