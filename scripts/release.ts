@@ -119,8 +119,9 @@ export async function runRelease(options: {
       summary.pruned.forEach((m: string) => (notes += `- \`${m}\`\n`));
     }
   } else {
-    notes += `- 🚀 **Dynamic Algorithmic Curation Engine**: Replaced static whitelist with dynamic 3-phase model sorting, semantic version extraction, and generation quota inversion handling.\n`;
-    notes += `- 🎯 Maintained 18 curated high-capacity flagship models, dual free models, and cross-provider comparison representatives.\n`;
+    notes += `- 🎨 **Unified Clean Display Names**: Stripped all promotional suffixes such as \`(GOAT 7x)\` and \`(2x Deal)\`, restoring standard clean official model names.\n`;
+    notes += `- 🎁 **Standardized Free Tier Badging**: Strictly labeled zero-cost models as \`(Free)\` (\`Laguna S 2.1 (Free)\` & \`Ling 3.0 Flash Sante (Free)\`).\n`;
+    notes += `- 🎯 **Dynamic Lineup**: Maintained 18 curated high-capacity flagship, free, and cross-provider models with generation quota inversion handling.\n`;
   }
   notes += `\n### 📦 Quick Start\n`;
   notes += `\`\`\`jsonc\n{\n  "plugin": ["github:wx2020/opencode-commandcode#${newTag}"]\n}\n\`\`\`\n`;
