@@ -119,7 +119,8 @@ export async function runRelease(options: {
       summary.pruned.forEach((m: string) => (notes += `- \`${m}\`\n`));
     }
   } else {
-    notes += `- Maintenance update and model synchronization.\n`;
+    notes += `- 🚀 **Dynamic Algorithmic Curation Engine**: Replaced static whitelist with dynamic 3-phase model sorting, semantic version extraction, and generation quota inversion handling.\n`;
+    notes += `- 🎯 Maintained 18 curated high-capacity flagship models, dual free models, and cross-provider comparison representatives.\n`;
   }
   notes += `\n### 📦 Quick Start\n`;
   notes += `\`\`\`jsonc\n{\n  "plugin": ["github:wx2020/opencode-commandcode#${newTag}"]\n}\n\`\`\`\n`;
