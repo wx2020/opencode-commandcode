@@ -49,7 +49,7 @@ describe("CommandCode OpenCode Plugin", () => {
   describe("Model Matrix & Capabilities", () => {
     test("has registered GOAT models with core lineup included", () => {
       const modelKeys = Object.keys(GOAT_MODELS);
-      expect(modelKeys.length).toBeGreaterThanOrEqual(14);
+      expect(modelKeys.length).toBe(18);
     });
 
     test("deepseek-v4.1-flash has authentic 384k output capacity and reasoning levels", () => {
@@ -71,17 +71,25 @@ describe("CommandCode OpenCode Plugin", () => {
       expect(GOAT_MODELS["deepseek/deepseek-v4-flash"]).toBeUndefined();
       expect(GOAT_MODELS["Qwen/Qwen3.7-Max"]).toBeUndefined();
       expect(GOAT_MODELS["google/gemini-3.7-flash"]).toBeUndefined();
+      expect(GOAT_MODELS["zai-org/GLM-5.3"]).toBeUndefined();
+      expect(GOAT_MODELS["Qwen/Qwen3.8-Max-0902"]).toBeUndefined();
     });
 
-    test("retains exactly 1-2 flagships per family (Pro/Flash) and prunes redundant variants", () => {
-      // Qwen: has Pro and Flash, prunes redundant 27B and duplicate flash
-      expect(GOAT_MODELS["Qwen/Qwen3.8-Max-0902"]).toBeDefined();
+    test("retains high quota models, reverse-quota models, free models and benchmark seats", () => {
+      // StepFun: retains Step 3.5 Flash by reverse-quota rule, prunes 3.7
+      expect(GOAT_MODELS["stepfun/Step-3.5-Flash"]).toBeDefined();
+      expect(GOAT_MODELS["stepfun/Step-3.7-Flash"]).toBeUndefined();
+
+      // Kimi: retains K2.7 Code by reverse-quota rule (2710 > 490), prunes K3
+      expect(GOAT_MODELS["moonshotai/Kimi-K2.7-Code"]).toBeDefined();
+      expect(GOAT_MODELS["moonshotai/Kimi-K3"]).toBeUndefined();
+
+      // Qwen: has 27B and Omni-Flash, prunes duplicate Flash and low-quota Max
+      expect(GOAT_MODELS["Qwen/Qwen3.8-27B"]).toBeDefined();
       expect(GOAT_MODELS["Qwen/Qwen3.8-Omni-Flash"]).toBeDefined();
-      expect(GOAT_MODELS["Qwen/Qwen3.8-27B"]).toBeUndefined();
       expect(GOAT_MODELS["Qwen/Qwen3.8-Flash"]).toBeUndefined();
 
-      // GLM: has Pro and Flash, prunes redundant flashx
-      expect(GOAT_MODELS["zai-org/GLM-5.3"]).toBeDefined();
+      // GLM: has Flash (11.8k), prunes redundant flashx and low-quota Pro
       expect(GOAT_MODELS["z-ai/glm-5.3-flash"]).toBeDefined();
       expect(GOAT_MODELS["z-ai/glm-5.3-flashx"]).toBeUndefined();
 
@@ -89,6 +97,10 @@ describe("CommandCode OpenCode Plugin", () => {
       expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro"]).toBeDefined();
       expect(GOAT_MODELS["xiaomi/mimo-v2.6-flash"]).toBeDefined();
       expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro-ultraspeed"]).toBeUndefined();
+
+      // Free Tier: both Laguna and Ling are retained
+      expect(GOAT_MODELS["poolside/laguna-s-2.1-free"]).toBeDefined();
+      expect(GOAT_MODELS["inclusionai/ling-3.0-flash-sante:free"]).toBeDefined();
     });
   });
 

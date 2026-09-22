@@ -47,74 +47,44 @@ interface ModelsDevSpec {
 }
 
 /**
- * Prunes obsolete generations and redundant intra-family variants.
- * Strict Project Rule: Keep at most 1-2 models per family (1 Pro/Max + 1 Flash),
- * prioritizing ample context (>= 1M tokens).
+ * Curated and Ordered 18-Model Lineup for CommandCode GOAT Plan.
+ * Hierarchical order:
+ * 1. High-Quota Flagships (5h Quota >= 4,000, sorted descending by quota)
+ * 2. Zero-Cost Free Models (Dual Fallback)
+ * 3. Cross-Vendor Benchmark Flagships (1 per other vendor, sorted descending by quota)
  */
-export function isOutdatedVersion(modelId: string, availableModelIds: string[]): boolean {
-  const lower = modelId.toLowerCase();
+export const ORDERED_MODEL_IDS = [
+  // 1. 高配额主力模型 (Quota >= 4000, 降序)
+  "deepseek/deepseek-v4.1-flash",
+  "xiaomi/mimo-v2.6-flash",
+  "meta/muse-spark-1.3-contributor",
+  "meituan/LongCat-2.0",
+  "tencent/hy3-paid",
+  "xiaomi/mimo-v2.6-pro",
+  "Qwen/Qwen3.8-27B",
+  "z-ai/glm-5.3-flash",
+  "Qwen/Qwen3.8-Omni-Flash",
+  "stepfun/Step-3.5-Flash",
+  "gpt-5.6-luna",
+  "MiniMaxAI/MiniMax-M3",
 
-  // 1. Gemini: keep only latest gemini-3.8-flash
-  if (lower.includes("gemini")) {
-    const has38 = availableModelIds.some((id) => id.toLowerCase().includes("gemini-3.8"));
-    if (has38 && !lower.includes("gemini-3.8")) return true;
-  }
+  // 2. 零成本免费模型 (Free Tier 双保底)
+  "poolside/laguna-s-2.1-free",
+  "inclusionai/ling-3.0-flash-sante:free",
 
-  // 2. GLM: keep only GLM-5.3 (Pro) and glm-5.3-flash (Flash)
-  if (lower.includes("glm")) {
-    const has53 = availableModelIds.some((id) => id.toLowerCase().includes("glm-5.3"));
-    if (has53) {
-      if (lower.includes("5.2") || lower.includes("5.1") || /glm-5(?![.\d])/i.test(lower)) return true;
-      if (lower.includes("flashx")) return true; // prune redundant FlashX
-    }
-  }
+  // 3. 跨厂对比模型 (各1款代表作，按配额降序)
+  "moonshotai/Kimi-K2.7-Code",
+  "google/gemini-3.8-flash",
+  "thinkingmachines/inkling-small",
+  "xai/grok-4.6",
+] as const;
 
-  // 3. Qwen: keep only Qwen3.8-Max-0902 (Pro) and Qwen3.8-Omni-Flash (Flash)
-  if (lower.includes("qwen")) {
-    const has38 = availableModelIds.some(
-      (id) => id.toLowerCase().includes("qwen3.8") || id.toLowerCase().includes("qwen-3.8")
-    );
-    if (has38) {
-      if (lower.includes("3.7") || lower.includes("3.6")) return true;
-      if (lower.includes("27b")) return true;
-      if (lower.includes("qwen3.8-flash") && !lower.includes("omni")) return true;
-      if (lower.includes("qwen3.8-max") && !lower.includes("0902")) return true;
-    }
-  }
-
-  // 4. DeepSeek: keep only deepseek-v4.1-flash (384k output flagship)
-  if (lower.includes("deepseek")) {
-    const hasV41 = availableModelIds.some((id) => id.toLowerCase().includes("v4.1"));
-    if (hasV41 && !lower.includes("v4.1")) return true;
-  }
-
-  // 5. Kimi: keep only Kimi-K3 (Pro) and Kimi-K2.7-Code (Code/Flash)
-  if (lower.includes("kimi")) {
-    const hasK3orK27 = availableModelIds.some(
-      (id) => id.toLowerCase().includes("k3") || id.toLowerCase().includes("k2.7")
-    );
-    if (hasK3orK27) {
-      if (lower.includes("k2.6") || lower.includes("k2.5")) return true;
-      if (lower.includes("highspeed")) return true; // prune secondary variant
-    }
-  }
-
-  // 6. MiMo: keep only mimo-v2.6-pro (Pro) and mimo-v2.6-flash (Flash)
-  if (lower.includes("mimo")) {
-    const hasV26 = availableModelIds.some((id) => id.toLowerCase().includes("v2.6"));
-    if (hasV26) {
-      if (lower.includes("v2.5")) return true;
-      if (lower.includes("ultraspeed")) return true; // prune secondary variant
-    }
-  }
-
-  // 7. Free tier: keep laguna-s-2.1-free, prune ling-3.0
-  if (lower.includes("ling-3.0")) {
-    const hasLaguna = availableModelIds.some((id) => id.toLowerCase().includes("laguna"));
-    if (hasLaguna) return true;
-  }
-
-  return false;
+/**
+ * Prunes obsolete generations, redundant intra-family variants,
+ * and models that do not meet the 3-tier curation rules.
+ */
+export function isOutdatedVersion(modelId: string, availableModelIds?: string[]): boolean {
+  return !(ORDERED_MODEL_IDS as readonly string[]).includes(modelId);
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -164,15 +134,15 @@ export async function syncModels(
   const updated: string[] = [];
   const pruned: string[] = [];
 
-  for (const modelId of allAvailableIds) {
-    // Apply automatic obsolete version pruning
-    if (isOutdatedVersion(modelId, allAvailableIds)) {
-      if (CURRENT_MODELS[modelId]) {
-        pruned.push(modelId);
-      }
-      continue;
+  // 1. Identify and record pruned models that were previously active
+  for (const prevId of Object.keys(CURRENT_MODELS)) {
+    if (isOutdatedVersion(prevId)) {
+      pruned.push(prevId);
     }
+  }
 
+  // 2. Synchronize and populate models strictly in ORDERED_MODEL_IDS order
+  for (const modelId of ORDERED_MODEL_IDS) {
     const ccModel = rawModels.find((m) => m.id === modelId);
     const currentDef = CURRENT_MODELS[modelId];
 
@@ -211,7 +181,12 @@ export async function syncModels(
         lowerId.includes("flash") ||
         lowerId.includes("deepseek") ||
         lowerId.includes("qwen") ||
-        lowerId.includes("glm"));
+        lowerId.includes("glm") ||
+        lowerId.includes("kimi") ||
+        lowerId.includes("step") ||
+        lowerId.includes("inkling") ||
+        lowerId.includes("laguna") ||
+        lowerId.includes("grok"));
 
     // Reasoning Variants (only applicable if reasoning is supported)
     let variants = currentDef?.variants ? { ...currentDef.variants } : undefined;
@@ -233,16 +208,22 @@ export async function syncModels(
       }
     }
 
-    // Cost calculation (7x discount for GOAT plan)
-    const rawCost = devSpec?.cost || currentDef?.cost || { input: 0.1, output: 0.3 };
-    const cost = {
-      input: Number(((rawCost.input || 0.1) / 7).toFixed(4)),
-      output: Number(((rawCost.output || 0.3) / 7).toFixed(4)),
-      cache_read: rawCost.cache_read
-        ? Number((rawCost.cache_read / 7).toFixed(4))
-        : 0.001,
-      cache_write: rawCost.cache_write ? Number((rawCost.cache_write / 7).toFixed(4)) : 0,
-    };
+    // Cost calculation (7x discount for GOAT plan, 0 for free)
+    const isFree = modelId.includes("free");
+    const rawCost = isFree
+      ? { input: 0, output: 0, cache_read: 0, cache_write: 0 }
+      : devSpec?.cost || currentDef?.cost || { input: 0.1, output: 0.3 };
+
+    const cost = isFree
+      ? { input: 0, output: 0, cache_read: 0, cache_write: 0 }
+      : {
+          input: Number(((rawCost.input || 0.1) / 7).toFixed(4)),
+          output: Number(((rawCost.output || 0.3) / 7).toFixed(4)),
+          cache_read: rawCost.cache_read
+            ? Number((rawCost.cache_read / 7).toFixed(4))
+            : 0.001,
+          cache_write: rawCost.cache_write ? Number((rawCost.cache_write / 7).toFixed(4)) : 0,
+        };
 
     const newDef: CommandCodeModelDefinition = {
       name: currentDef?.name || ccModel?.name || `${modelId} (GOAT 7x)`,
@@ -261,25 +242,14 @@ export async function syncModels(
     };
 
     if (!currentDef) {
-      // Only admit major high-value models to default lineup
-      if (
-        lowerId.includes("deepseek") ||
-        lowerId.includes("qwen") ||
-        lowerId.includes("glm") ||
-        lowerId.includes("kimi") ||
-        lowerId.includes("mimo") ||
-        lowerId.includes("gemini")
-      ) {
-        added.push(modelId);
-        updatedModels[modelId] = newDef;
-      }
+      added.push(modelId);
     } else {
       const isDiff = JSON.stringify(currentDef) !== JSON.stringify(newDef);
       if (isDiff) {
         updated.push(modelId);
       }
-      updatedModels[modelId] = newDef;
     }
+    updatedModels[modelId] = newDef;
   }
 
   const hasChanges = added.length > 0 || updated.length > 0 || pruned.length > 0;

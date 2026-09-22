@@ -5,7 +5,7 @@
  */
 
 import { spawnSync } from "child_process";
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, rmSync } from "fs";
 import { join } from "path";
 import { syncModels } from "./sync-models.js";
 
@@ -158,10 +158,10 @@ export async function runRelease(options: {
     ]);
     console.log(`✅ Successfully published GitHub Release: https://github.com/wx2020/opencode-commandcode/releases/tag/${newTag}`);
   } catch (err) {
-    console.warn("⚠️ Could not create release via gh CLI directly (maybe running in non-auth or non-interactive env).");
+    console.warn("⚠️ Skipped gh CLI release (git tag push is the primary release mechanism).");
   } finally {
-    if (existsSync(notesPath)) spawnSync("rm", ["-f", notesPath], { shell: true });
-    if (existsSync(archivePath)) spawnSync("rm", ["-f", archivePath], { shell: true });
+    if (existsSync(notesPath)) rmSync(notesPath, { force: true });
+    if (existsSync(archivePath)) rmSync(archivePath, { force: true });
   }
 
   console.log(`\n🎊 Pipeline finished successfully! Version ${newTag} is live.`);
