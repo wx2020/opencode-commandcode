@@ -21,12 +21,11 @@
 
 ---
 
-## 🚀 快速部署与使用 (Installation & Deployment)
+## 🚀 跨设备安装与正确配置方案 (Installation & Setup)
 
-### 方式 A：GitHub 直接引用 (最推荐，即开即用)
+### 1. 插件配置（全局 `~/.config/opencode/opencode.json` 或 `opencode.jsonc`）
 
-无需本地打包或预装任何包，只需在全局配置文件 `~/.config/opencode/opencode.jsonc`（Windows 下为 `%USERPROFILE%\.config\opencode\opencode.jsonc`）中添加一行：
-
+**正确写法（官方推荐，首选）：**
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
@@ -35,91 +34,120 @@
   ]
 }
 ```
-OpenCode 启动时将自动下载并挂载本插件。
 
----
-
-### 方式 B：一键自动化安装脚本 (Zero Config)
-
-克隆本项目后，在仓库根目录下运行：
-
-```bash
-# Node.js 或 Bun 均可执行
-node ./scripts/install.js
-# 或
-bun ./scripts/install.js
-```
-该脚本会自动查找您系统中的 `opencode.jsonc` 并将插件自动注入到 `plugin` 列表中。
-
----
-
-### 方式 C：本地克隆/子模块引用
-
-在您本地的 `opencode.jsonc` 中直接指定本地路径：
-
+**钉版本（可选，注意缓存目录会带 `#`）：**
 ```jsonc
 {
   "plugin": [
-    "./path/to/opencode-commandcode"
+    "github:wx2020/opencode-commandcode#v1.0.7"
   ]
 }
 ```
 
+> [!CAUTION]
+> **常见错误写法（踩坑预警）：**
+> ```jsonc
+> "plugin": ["opencode-commandcode@github:wx2020/opencode-commandcode#v1.0.7"]  // ✗ 错误写法，请勿添加别名前缀
+> ```
+
+**核心要点：**
+- 必须是 **`github:owner/repo`**，不要带 `包名@github:...`；
+- 首选**不带 `#tag`**，少一个带有 `#` 特殊字符的本地缓存路径坑；
+- 严禁使用 `file://` 绕过（确保插件规范化安装与加载）。
+
 ---
 
-## 🔑 配置 API Key
+### 2. API Key 配置（三选一，优先级从高到低）
 
-插件支持以下三种方式提供密钥（优先级从高到低自动解析）：
-
-1. **交互式安全登录 (推荐)**：
+1. **推荐：命令行交互式登录**
    ```bash
    opencode auth login
    ```
-   在终端列表中选择 **`CommandCode Studio API Key (GOAT Plan)`**，粘贴您的 Key（如 `user_...`）。密钥将安全保存在本地凭据库中。
-
+   在终端选项中选择 **`CommandCode Studio API Key (GOAT Plan)`**，粘贴您的 `user_...` 密钥。
 2. **环境变量**：
    ```bash
    # Bash / Zsh
-   export CMD_API_KEY="user_your_commandcode_api_key"
+   export CMD_API_KEY="user_..."       # 或 COMMANDCODE_API_KEY
 
    # PowerShell
-   $env:CMD_API_KEY="user_your_commandcode_api_key"
+   $env:CMD_API_KEY="user_..."
    ```
-
-3. **配置文件静态参数**：
-   在 `opencode.jsonc` 的 `provider.commandcode.options` 中指定：
-   ```jsonc
-   {
-     "provider": {
-       "commandcode": {
-         "options": {
-           "apiKey": "user_your_commandcode_api_key"
-         }
-       }
-     }
-   }
-   ```
+3. **已有凭据直接继承**：
+   已在 `~/.local/share/opencode/auth.json` 中配置过 `commandcode` 的设备，安装后直接继承已有 key，无需重复输入。
 
 ---
 
-## 📋 内置主力模型矩阵 (Model Capabilities)
+### 3. 安装后自检与验证
 
-| 模型标识 (Model ID) | 最大上下文 (Context) | 最大输出容量 (Output) | 支持推理强度 (Reasoning Effort) |
-|---|---|---|---|
-| `deepseek/deepseek-v4.1-flash` | 1,000,000 | **384,000** | `low`, `medium`, `high`, `max` |
-| `Qwen/Qwen3.8-Omni-Flash` | 1,000,000 | 131,072 | `low`, `medium`, `high`, `max` |
-| `z-ai/glm-5.3-flash` | 1,000,000 | 131,072 | `low`, `high`, `max` |
-| `xiaomi/mimo-v2.5` | 1,048,576 | 131,072 | `low`, `high` |
-| `meituan/LongCat-2.0` | 1,048,576 | 262,144 | *(不支持推理)* |
-| `MiniMaxAI/MiniMax-M3` | 524,288 | 131,072 | `low`, `medium`, `high`, `max` |
-| `tencent/hy4-preview` | 1,048,576 | 64,000 | `low`, `high` |
-| `moonshotai/Kimi-K2.7-Code` | 262,144 | 262,144 | `low`, `medium`, `high` |
-| `stepfun/Step-3.7-Flash` | 262,144 | 256,000 | `low`, `medium`, `high` |
-| `google/gemini-3.8-flash` | 1,048,576 | 65,536 | `low`, `high`, `max` |
-| `gpt-5.6-luna` | 1,050,000 | 128,000 | `low`, `medium`, `high`, `max` |
-| `meta/muse-spark-1.3-contributor` | 1,048,576 | 131,072 | `low`, `medium`, `high`, `max` |
-| `inclusionai/ling-3.0-flash-sante:free` | 262,144 | 32,768 | *(免费层模型)* |
-| `poolside/laguna-s-2.1-free` | 262,144 | 32,768 | `low`, `high` |
+```bash
+# 1. 检查插件缓存主包（路径里可能含 #tag）
+ls ~/.cache/opencode/packages/github:wx2020/opencode-commandcode*/node_modules/opencode-commandcode/package.json
+
+# 2. 检查配置与 Provider 是否成功注册
+opencode models commandcode
+# 或通过 HTTP 接口检查 GET /config → 确认 provider.commandcode 及其 18 款模型非空
+```
+
+> [!TIP]
+> **排查日志提醒**：如果终端出现 `Failed to install plugin` 错误，该错误**只记录进 OpenCode `Session.Error` 事件中，不会写入普通的 `opencode.log` 文件**，排查时切勿只盯文件日志。
+
+---
+
+### 4. 改动插件字段后必须重启客户端
+
+OpenCode **不热载**全局 config（会无限期内存缓存）。修改 `opencode.json` / `opencode.jsonc` 之后：
+- **OpenChamber 用户**：在 `Settings` 中点击重启 managed OpenCode，或请求 `POST /api/config/reload`（会触发子进程重启）；
+- **独立 OpenCode CLI/TUI 用户**：完全退出终端进程后重新启动。
+
+---
+
+### 5. 若安装卡死或缓存残缺的恢复方法
+
+```bash
+# 清掉该插件的本地缓存目录后重启 opencode
+rm -rf ~/.cache/opencode/packages/github:wx2020
+```
+
+> [!WARNING]
+> **切忌在 OpenCode 正在安装时执行 `rm -rf` 缓存**，否则会引发读写竞态导致缓存文件损坏残缺。
+
+---
+
+### 📌 一句话快速清单
+
+```text
+plugin: ["github:wx2020/opencode-commandcode"]
+key:    opencode auth login → CommandCode，或 CMD_API_KEY
+然后:   重启 OpenCode / OpenChamber
+验:     /config 或 opencode models commandcode 确认 18 个模型完整加载
+```
+
+---
+
+## 📋 内置精选主力模型矩阵 (18 Curated Models)
+
+| 层级分类 | 模型唯一 ID (Model ID) | 显示名称 (Display Name) | 上下文 (Context) | 最大输出容量 (Output) | 支持深度推理 |
+|---|---|---|---|---|:---:|
+| **🏆 高配额主力** | `deepseek/deepseek-v4.1-flash` | **DeepSeek V4.1 Flash** | 1,000,000 | **384,000** | ✅ (`low`, `high`, `max`) |
+| *(配额 $\ge 4000$)* | `xiaomi/mimo-v2.6-flash` | **MiMo V2.6 Flash** | 1,048,576 | 131,072 | ✅ (`high`) |
+| *(按配额降序)* | `meta/muse-spark-1.3-contributor` | **Muse Spark 1.3 Contributor** | 1,048,576 | 943,718 | ✅ (`low`, `high`, `max`) |
+| | `meituan/LongCat-2.0` | **LongCat 2.0** | **2,000,000** | 262,144 | ❌ 标准输出 |
+| | `tencent/hy3-paid` | **Tencent Hy3** | 256,000 | 64,000 | ✅ (`low`, `high`) |
+| | `xiaomi/mimo-v2.6-pro` | **MiMo V2.6 Pro** | 1,048,576 | 131,072 | ✅ (`high`) |
+| | `Qwen/Qwen3.8-27B` | **Qwen 3.8 27B** | 128,000 | 131,072 | ✅ (`low`, `high`, `max`) |
+| | `z-ai/glm-5.3-flash` | **GLM 5.3 Flash** | 1,048,576 | 131,072 | ✅ (`low`, `high`, `max`) |
+| | `Qwen/Qwen3.8-Omni-Flash` | **Qwen 3.8 Omni Flash** | 1,000,000 | 131,072 | ✅ (`low`, `high`, `max`) |
+| | `stepfun/Step-3.5-Flash` | **Step 3.5 Flash** | 256,000 | 262,144 | ✅ (`low`, `high`) |
+| | `gpt-5.6-luna` | **GPT-5.6 Luna** | 1,050,000 | 128,000 | ✅ (`low`, `high`, `max`) |
+| | `MiniMaxAI/MiniMax-M3` | **MiniMax M3** | 1,000,000 | **1,048,576** | ✅ (`low`, `high`, `max`) |
+| ── | ────────────────────────────────── | ───────────────────────────── | ─────────── | ─────────── | ─── |
+| **🎁 免费双保底** | `poolside/laguna-s-2.1-free` | **Laguna S 2.1 (Free)** | 256,000 | 32,768 | ✅ (`low`, `high`) |
+| *(Zero-Cost)* | `inclusionai/ling-3.0-flash-sante:free` | **Ling 3.0 Flash Sante (Free)** | 262,144 | 4,096 | ✅ (`low`, `high`) |
+| ── | ────────────────────────────────── | ───────────────────────────── | ─────────── | ─────────── | ─── |
+| **🔍 跨厂对比** | `moonshotai/Kimi-K2.7-Code` | **Kimi K2.7 Code** | 256,000 | 262,144 | ✅ (`low`, `high`) |
+| *(各厂限 1 款)* | `google/gemini-3.8-flash` | **Gemini 3.8 Flash** | 1,000,000 | 65,536 | ✅ (`low`, `high`, `max`) |
+| *(按配额降序)* | `thinkingmachines/inkling-small` | **Inkling Small** | 128,000 | 32,768 | ✅ (`low`, `high`) |
+| | `xai/grok-4.6` | **Grok 4.6** | 128,000 | 32,768 | ✅ (`low`, `high`) |
 
 ---
 
