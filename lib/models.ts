@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-22T05:01:49.880Z
+ * Last updated: 2026-09-23T02:38:21.684Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -59,7 +59,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio"
       ],
       "output": [
         "text"
@@ -183,7 +185,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio"
       ],
       "output": [
         "text"
@@ -333,17 +337,17 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "field": "reasoning_content"
     }
   },
-  "gpt-5.6-luna": {
-    "name": "GPT-5.6 Luna",
+  "gpt-6-astra": {
+    "name": "GPT-6 Astra",
     "limit": {
       "context": 1050000,
       "output": 128000
     },
     "cost": {
-      "input": 0.15,
-      "output": 0.6,
-      "cache_read": 0.02,
-      "cache_write": 0
+      "input": 1.4286,
+      "output": 7.1429,
+      "cache_read": 0.1429,
+      "cache_write": 1.7857
     },
     "modalities": {
       "input": [

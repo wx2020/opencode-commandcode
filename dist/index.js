@@ -73,7 +73,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio"
       ],
       output: [
         "text"
@@ -197,7 +199,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio"
       ],
       output: [
         "text"
@@ -347,17 +351,17 @@ var GOAT_MODELS = {
       field: "reasoning_content"
     }
   },
-  "gpt-5.6-luna": {
-    name: "GPT-5.6 Luna",
+  "gpt-6-astra": {
+    name: "GPT-6 Astra",
     limit: {
       context: 1050000,
       output: 128000
     },
     cost: {
-      input: 0.15,
-      output: 0.6,
-      cache_read: 0.02,
-      cache_write: 0
+      input: 1.4286,
+      output: 7.1429,
+      cache_read: 0.1429,
+      cache_write: 1.7857
     },
     modalities: {
       input: [
@@ -735,28 +739,28 @@ var opencode_commandcode_default = {
   server: CommandCodePlugin
 };
 export {
-  shouldEnableZdr,
-  rewriteUrlForCommandCode,
-  resolveApiKey,
-  isApiKeyValid,
-  opencode_commandcode_default as default,
-  createCommandCodeHeaders,
-  createCommandCodeFetch,
-  ZERO_DATA_RETENTION_VALUE,
-  PROVIDER_NAME,
-  PLUGIN_ID,
-  HEADERS,
-  GOAT_MODELS,
-  ENV_ZDR_KEYS,
-  ENV_API_KEYS,
-  DUMMY_API_KEY,
-  CommandCodePlugin,
-  COMMANDCODE_RESPONSES_ENDPOINT,
-  COMMANDCODE_MODELS_ENDPOINT,
-  COMMANDCODE_CHAT_ENDPOINT,
-  COMMANDCODE_BASE_URL,
+  AUTH_LABELS,
   AUTH_METHODS,
-  AUTH_LABELS
+  COMMANDCODE_BASE_URL,
+  COMMANDCODE_CHAT_ENDPOINT,
+  COMMANDCODE_MODELS_ENDPOINT,
+  COMMANDCODE_RESPONSES_ENDPOINT,
+  CommandCodePlugin,
+  DUMMY_API_KEY,
+  ENV_API_KEYS,
+  ENV_ZDR_KEYS,
+  GOAT_MODELS,
+  HEADERS,
+  PLUGIN_ID,
+  PROVIDER_NAME,
+  ZERO_DATA_RETENTION_VALUE,
+  createCommandCodeFetch,
+  createCommandCodeHeaders,
+  opencode_commandcode_default as default,
+  isApiKeyValid,
+  resolveApiKey,
+  rewriteUrlForCommandCode,
+  shouldEnableZdr
 };
 
-//# debugId=0045B5D69713176164756E2164756E21
+//# debugId=46AEC2E46027E37D64756E2164756E21
