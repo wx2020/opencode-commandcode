@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-23T02:38:21.684Z
+ * Last updated: 2026-09-24T02:27:50.318Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -60,8 +60,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "input": [
         "text",
         "image",
-        "video",
-        "audio"
+        "audio",
+        "video"
       ],
       "output": [
         "text"
@@ -186,8 +186,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "input": [
         "text",
         "image",
-        "video",
-        "audio"
+        "audio",
+        "video"
       ],
       "output": [
         "text"

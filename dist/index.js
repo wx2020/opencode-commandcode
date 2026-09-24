@@ -74,8 +74,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "audio"
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -200,8 +200,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "audio"
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -763,4 +763,4 @@ export {
   shouldEnableZdr
 };
 
-//# debugId=46AEC2E46027E37D64756E2164756E21
+//# debugId=DEC2C93D00EA4FC864756E2164756E21
