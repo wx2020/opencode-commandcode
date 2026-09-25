@@ -251,6 +251,14 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      }
     }
   },
   "z-ai/glm-5.3-flash": {
@@ -269,8 +277,7 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "pdf"
+        "video"
       ],
       output: [
         "text"
@@ -328,8 +335,8 @@ var GOAT_MODELS = {
   "stepfun/Step-3.5-Flash": {
     name: "Step 3.5 Flash",
     limit: {
-      context: 1e6,
-      output: 4096
+      context: 262144,
+      output: 65536
     },
     cost: {
       input: 0.0143,
@@ -339,8 +346,7 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text",
-        "image"
+        "text"
       ],
       output: [
         "text"
@@ -349,6 +355,11 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      high: {
+        reasoningEffort: "high"
+      }
     }
   },
   "gpt-6-astra": {
@@ -396,7 +407,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3",
     limit: {
       context: 1e6,
-      output: 1048576
+      output: 512000
     },
     cost: {
       input: 0.015,
@@ -406,7 +417,9 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text"
+        "text",
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -576,7 +589,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 32768
+      output: 1048576
     },
     cost: {
       input: 0.0714,
@@ -623,6 +636,17 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      }
     }
   }
 };
@@ -763,4 +787,4 @@ export {
   shouldEnableZdr
 };
 
-//# debugId=DEC2C93D00EA4FC864756E2164756E21
+//# debugId=E7910A58ACB41F7164756E2164756E21
