@@ -11,6 +11,6 @@ export * from "./lib/fetch";
 export declare const CommandCodePlugin: (_input: PluginInput) => Promise<Hooks>;
 declare const _default: {
     id: string;
-    server: typeof CommandCodePlugin;
+    server: (_input: PluginInput) => Promise<Hooks>;
 };
 export default _default;

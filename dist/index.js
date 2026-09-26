@@ -444,6 +444,72 @@ var GOAT_MODELS = {
       }
     }
   },
+  "stealth/space-bunny-alpha": {
+    name: "Space Bunny Alpha",
+    limit: {
+      context: 1e6,
+      output: 524288
+    },
+    cost: {
+      input: 0.0071,
+      output: 0.0214,
+      cache_read: 0.001,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text",
+        "image",
+        "video"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      },
+      max: {
+        reasoningEffort: "max"
+      }
+    }
+  },
+  "stealth/pixel-canary": {
+    name: "Pixel Canary",
+    limit: {
+      context: 262144,
+      output: 131072
+    },
+    cost: {
+      input: 0.0143,
+      output: 0.0429,
+      cache_read: 0.001,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    }
+  },
   "poolside/laguna-s-2.1-free": {
     name: "Laguna S 2.1 (Free)",
     limit: {
@@ -684,6 +750,20 @@ function rewriteUrlForCommandCode(requestInput) {
   }
   return originalUrl.replace(/^https?:\/\/[^/]+(\/v1)?/, COMMANDCODE_BASE_URL);
 }
+function isStealthModel(model) {
+  return typeof model === "string" && model.toLowerCase().startsWith("stealth/");
+}
+function extractRequestModel(body) {
+  try {
+    if (typeof body === "string") {
+      return JSON.parse(body)?.model;
+    }
+    if (body && typeof body === "object") {
+      return body.model;
+    }
+  } catch {}
+  return;
+}
 function shouldEnableZdr(headers) {
   for (const key of ENV_ZDR_KEYS) {
     if (process.env[key] === "1" || process.env[key]?.toLowerCase() === "true") {
@@ -692,10 +772,14 @@ function shouldEnableZdr(headers) {
   }
   return headers ? headers.has(HEADERS.ZDR) : false;
 }
-function createCommandCodeHeaders(existingHeaders, apiKey) {
+function createCommandCodeHeaders(existingHeaders, apiKey, body) {
   const headers = new Headers(existingHeaders);
   if (apiKey && apiKey !== DUMMY_API_KEY) {
     headers.set(HEADERS.AUTHORIZATION, `Bearer ${apiKey}`);
+  }
+  if (isStealthModel(extractRequestModel(body))) {
+    headers.delete(HEADERS.ZDR);
+    return headers;
   }
   if (shouldEnableZdr(headers) && !headers.has(HEADERS.ZDR)) {
     headers.set(HEADERS.ZDR, ZERO_DATA_RETENTION_VALUE);
@@ -706,7 +790,7 @@ function createCommandCodeFetch(getAuth, fallbackApiKey) {
   return async (requestInput, init) => {
     const currentAuth = await getAuth();
     const resolvedKey = resolveApiKey(currentAuth?.type === "api" ? currentAuth.key : fallbackApiKey);
-    const headers = createCommandCodeHeaders(init?.headers, resolvedKey);
+    const headers = createCommandCodeHeaders(init?.headers, resolvedKey, init?.body);
     const targetUrl = rewriteUrlForCommandCode(requestInput);
     return fetch(targetUrl, {
       ...init,
@@ -763,28 +847,30 @@ var opencode_commandcode_default = {
   server: CommandCodePlugin
 };
 export {
-  AUTH_LABELS,
-  AUTH_METHODS,
-  COMMANDCODE_BASE_URL,
-  COMMANDCODE_CHAT_ENDPOINT,
-  COMMANDCODE_MODELS_ENDPOINT,
-  COMMANDCODE_RESPONSES_ENDPOINT,
-  CommandCodePlugin,
-  DUMMY_API_KEY,
-  ENV_API_KEYS,
-  ENV_ZDR_KEYS,
-  GOAT_MODELS,
-  HEADERS,
-  PLUGIN_ID,
-  PROVIDER_NAME,
-  ZERO_DATA_RETENTION_VALUE,
-  createCommandCodeFetch,
-  createCommandCodeHeaders,
-  opencode_commandcode_default as default,
-  isApiKeyValid,
-  resolveApiKey,
+  shouldEnableZdr,
   rewriteUrlForCommandCode,
-  shouldEnableZdr
+  resolveApiKey,
+  isStealthModel,
+  isApiKeyValid,
+  extractRequestModel,
+  opencode_commandcode_default as default,
+  createCommandCodeHeaders,
+  createCommandCodeFetch,
+  ZERO_DATA_RETENTION_VALUE,
+  PROVIDER_NAME,
+  PLUGIN_ID,
+  HEADERS,
+  GOAT_MODELS,
+  ENV_ZDR_KEYS,
+  ENV_API_KEYS,
+  DUMMY_API_KEY,
+  CommandCodePlugin,
+  COMMANDCODE_RESPONSES_ENDPOINT,
+  COMMANDCODE_MODELS_ENDPOINT,
+  COMMANDCODE_CHAT_ENDPOINT,
+  COMMANDCODE_BASE_URL,
+  AUTH_METHODS,
+  AUTH_LABELS
 };
 
-//# debugId=E7910A58ACB41F7164756E2164756E21
+//# debugId=100B328AB98102D464756E2164756E21

@@ -27,6 +27,31 @@ export function rewriteUrlForCommandCode(requestInput: RequestInfo | URL): strin
 }
 
 /**
+ * Checks if the given model id belongs to the anonymous stealth family.
+ * Stealth models do not support Zero Data Retention upstream (422 cmd_zdr_no_providers).
+ */
+export function isStealthModel(model?: string | null): boolean {
+  return typeof model === "string" && model.toLowerCase().startsWith("stealth/");
+}
+
+/**
+ * Extracts the "model" field from a request body without consuming streams.
+ */
+export function extractRequestModel(body?: unknown): string | undefined {
+  try {
+    if (typeof body === "string") {
+      return (JSON.parse(body) as { model?: string })?.model;
+    }
+    if (body && typeof body === "object") {
+      return (body as { model?: string }).model;
+    }
+  } catch {
+    // Malformed JSON: treat as non-stealth
+  }
+  return undefined;
+}
+
+/**
  * Checks if Zero Data Retention (ZDR) is requested via environment variable or custom headers.
  */
 export function shouldEnableZdr(headers?: Headers): boolean {
@@ -40,15 +65,23 @@ export function shouldEnableZdr(headers?: Headers): boolean {
 
 /**
  * Injects required authorization and optional ZDR headers for CommandCode.
+ * Strips the ZDR header for stealth/* models even when ZDR is globally enabled,
+ * because anonymous stealth models have no zero-data-retention upstream.
  */
 export function createCommandCodeHeaders(
   existingHeaders: HeadersInit | undefined,
   apiKey?: string,
+  body?: unknown,
 ): Headers {
   const headers = new Headers(existingHeaders);
 
   if (apiKey && apiKey !== DUMMY_API_KEY) {
     headers.set(HEADERS.AUTHORIZATION, `Bearer ${apiKey}`);
+  }
+
+  if (isStealthModel(extractRequestModel(body))) {
+    headers.delete(HEADERS.ZDR);
+    return headers;
   }
 
   if (shouldEnableZdr(headers) && !headers.has(HEADERS.ZDR)) {
@@ -72,7 +105,7 @@ export function createCommandCodeFetch(
       currentAuth?.type === "api" ? currentAuth.key : fallbackApiKey,
     );
 
-    const headers = createCommandCodeHeaders(init?.headers, resolvedKey);
+    const headers = createCommandCodeHeaders(init?.headers, resolvedKey, init?.body);
     const targetUrl = rewriteUrlForCommandCode(requestInput);
 
     return fetch(targetUrl, {

@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-25T02:44:41.501Z
+ * Last updated: 2026-09-26T05:57:18.039Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -428,6 +428,72 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "max": {
         "reasoningEffort": "max"
       }
+    }
+  },
+  "stealth/space-bunny-alpha": {
+    "name": "Space Bunny Alpha",
+    "limit": {
+      "context": 1000000,
+      "output": 524288
+    },
+    "cost": {
+      "input": 0.0071,
+      "output": 0.0214,
+      "cache_read": 0.001,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
+      },
+      "max": {
+        "reasoningEffort": "max"
+      }
+    }
+  },
+  "stealth/pixel-canary": {
+    "name": "Pixel Canary",
+    "limit": {
+      "context": 262144,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0.0143,
+      "output": 0.0429,
+      "cache_read": 0.001,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
     }
   },
   "poolside/laguna-s-2.1-free": {

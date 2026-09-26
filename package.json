@@ -1,6 +1,6 @@
 {
   "name": "opencode-commandcode",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Standard OpenCode Provider & Auth Plugin for CommandCode AI (GOAT Plan) - 384k Output Capacity, Reasoning Effort Control, and Zero Data Retention",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

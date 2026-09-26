@@ -94,6 +94,9 @@ export const KNOWN_QUOTAS: Record<string, number> = {
   "thinkingmachines/inkling": 989,
   "xai/grok-4.6": 360,
   "xai/grok-4.5": 360,
+  // Stealth anonymous evaluation models: fixed dual seats, quota aligned to Tier 1 threshold
+  "stealth/space-bunny-alpha": 4000,
+  "stealth/pixel-canary": 4000,
 };
 
 /**
@@ -153,6 +156,7 @@ export function parseModelMetadata(id: string): ModelMetadata {
   else if (lower.includes("grok") || lower.includes("xai")) family = "xai";
   else if (lower.includes("laguna") || lower.includes("poolside")) family = "poolside";
   else if (lower.includes("ling") || lower.includes("inclusionai")) family = "inclusionai";
+  else if (lower.startsWith("stealth/")) family = "stealth";
   else if (lower.includes("claude")) family = "anthropic";
 
   const isFree = lower.includes("free");
@@ -248,15 +252,22 @@ export function selectCuratedLineup(availableModelIds: string[]): string[] {
         return true;
       });
 
-      // Keep at most 1 Pro and 1 Flash
-      const pros = filtered.filter((m) => m.type === "Pro").sort((a, b) => b.quota - a.quota);
-      const flashes = filtered.filter((m) => m.type === "Flash").sort((a, b) => b.quota - a.quota);
-      if (pros.length > 0) highQuotaFlagships.push(pros[0]);
-      if (flashes.length > 0) {
-        if (fam === "qwen") {
-          flashes.forEach((f) => highQuotaFlagships.push(f));
-        } else {
-          highQuotaFlagships.push(flashes[0]);
+      // Stealth anonymous models: keep all (dual seats), exempt from the 1 Pro + 1 Flash cap
+      if (fam === "stealth") {
+        filtered
+          .sort((a, b) => b.quota - a.quota)
+          .forEach((m) => highQuotaFlagships.push(m));
+      } else {
+        // Keep at most 1 Pro and 1 Flash
+        const pros = filtered.filter((m) => m.type === "Pro").sort((a, b) => b.quota - a.quota);
+        const flashes = filtered.filter((m) => m.type === "Flash").sort((a, b) => b.quota - a.quota);
+        if (pros.length > 0) highQuotaFlagships.push(pros[0]);
+        if (flashes.length > 0) {
+          if (fam === "qwen") {
+            flashes.forEach((f) => highQuotaFlagships.push(f));
+          } else {
+            highQuotaFlagships.push(flashes[0]);
+          }
         }
       }
     } else {
@@ -423,6 +434,7 @@ export async function syncModels(
         lowerId.includes("step") ||
         lowerId.includes("inkling") ||
         lowerId.includes("laguna") ||
+        lowerId.startsWith("stealth/") ||
         lowerId.includes("grok"));
 
     // Reasoning Variants (only applicable if reasoning is supported)

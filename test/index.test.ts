@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import {
   PLUGIN_ID,
   COMMANDCODE_BASE_URL,
@@ -6,8 +6,15 @@ import {
   rewriteUrlForCommandCode,
   createCommandCodeHeaders,
   resolveApiKey,
+  isStealthModel,
+  extractRequestModel,
   CommandCodePlugin,
 } from "../index";
+import {
+  KNOWN_QUOTAS,
+  parseModelMetadata,
+  selectCuratedLineup,
+} from "../scripts/sync-models";
 
 describe("CommandCode OpenCode Plugin", () => {
   describe("URL Rewriting", () => {
@@ -44,13 +51,116 @@ describe("CommandCode OpenCode Plugin", () => {
       const key = resolveApiKey("custom-auth-key");
       expect(key).toBe("custom-auth-key");
     });
+
+    describe("ZDR stripping for stealth models", () => {
+      const ENV_BACKUP = { ...process.env };
+
+      beforeEach(() => {
+        delete process.env.CMD_ZDR;
+        delete process.env.COMMANDCODE_ZDR;
+      });
+
+      afterEach(() => {
+        for (const k of Object.keys(process.env)) {
+          if (!(k in ENV_BACKUP)) delete process.env[k];
+          else process.env[k] = ENV_BACKUP[k];
+        }
+      });
+
+      test("strips explicit x-cmd-zdr header for stealth models", () => {
+        const initial = new Headers({ "x-cmd-zdr": "1" });
+        const headers = createCommandCodeHeaders(
+          initial,
+          "test-key",
+          JSON.stringify({ model: "stealth/space-bunny-alpha" }),
+        );
+        expect(headers.get("x-cmd-zdr")).toBeNull();
+      });
+
+      test("strips x-cmd-zdr for stealth even when CMD_ZDR=1", () => {
+        process.env.CMD_ZDR = "1";
+        const headers = createCommandCodeHeaders(
+          undefined,
+          "test-key",
+          JSON.stringify({ model: "stealth/pixel-canary" }),
+        );
+        expect(headers.get("x-cmd-zdr")).toBeNull();
+      });
+
+      test("keeps ZDR injection for non-stealth requests (behavior unchanged)", () => {
+        process.env.CMD_ZDR = "1";
+        const headers = createCommandCodeHeaders(
+          undefined,
+          "test-key",
+          JSON.stringify({ model: "z-ai/glm-5.3-flash" }),
+        );
+        expect(headers.get("x-cmd-zdr")).toBe("1");
+      });
+
+      test("keeps explicit x-cmd-zdr for non-stealth requests", () => {
+        const initial = new Headers({ "x-cmd-zdr": "1" });
+        const headers = createCommandCodeHeaders(
+          initial,
+          "test-key",
+          JSON.stringify({ model: "deepseek/deepseek-v4.1-flash" }),
+        );
+        expect(headers.get("x-cmd-zdr")).toBe("1");
+      });
+    });
   });
 
   describe("Model Matrix & Capabilities", () => {
-    test("has registered GOAT models with core lineup included", () => {
-      const modelKeys = Object.keys(GOAT_MODELS);
-      expect(modelKeys.length).toBe(18);
-    });
+  test("has registered GOAT models with core lineup included", () => {
+    const modelKeys = Object.keys(GOAT_MODELS);
+    expect(modelKeys.length).toBe(20);
+  });
+
+  test("registers both stealth anonymous models with correct context limits and reasoning", () => {
+    const bunny = GOAT_MODELS["stealth/space-bunny-alpha"];
+    expect(bunny).toBeDefined();
+    expect(bunny.limit.context).toBe(1_000_000);
+    expect(bunny.reasoning).toBe(true);
+
+    const canary = GOAT_MODELS["stealth/pixel-canary"];
+    expect(canary).toBeDefined();
+    expect(canary.limit.context).toBe(262_144);
+    expect(canary.reasoning).toBe(true);
+  });
+
+  test("parses stealth as an independent family with tier-1 quota", () => {
+    const bunny = parseModelMetadata("stealth/space-bunny-alpha");
+    expect(bunny.family).toBe("stealth");
+    expect(bunny.quota).toBeGreaterThanOrEqual(4000);
+
+    const canary = parseModelMetadata("stealth/pixel-canary");
+    expect(canary.family).toBe("stealth");
+    expect(canary.quota).toBeGreaterThanOrEqual(4000);
+    expect(KNOWN_QUOTAS["stealth/space-bunny-alpha"]).toBeDefined();
+    expect(KNOWN_QUOTAS["stealth/pixel-canary"]).toBeDefined();
+  });
+
+  test("keeps both stealth dual seats in the curated lineup for all upstream models", () => {
+    const allUpstreamIds = [
+      ...Object.keys(KNOWN_QUOTAS),
+      ...Object.keys(GOAT_MODELS),
+    ];
+    const lineup = selectCuratedLineup([...new Set(allUpstreamIds)]);
+    expect(lineup).toContain("stealth/space-bunny-alpha");
+    expect(lineup).toContain("stealth/pixel-canary");
+    // 现有 lineup 成员不得回退
+    for (const id of Object.keys(GOAT_MODELS)) {
+      expect(lineup).toContain(id);
+    }
+  });
+
+  test("detects stealth model requests from bodies", () => {
+    expect(isStealthModel("stealth/space-bunny-alpha")).toBe(true);
+    expect(isStealthModel("STEALTH/Pixel-Canary")).toBe(true);
+    expect(isStealthModel("z-ai/glm-5.3-flash")).toBe(false);
+    expect(isStealthModel(undefined)).toBe(false);
+    expect(extractRequestModel('{"model":"stealth/pixel-canary"}')).toBe("stealth/pixel-canary");
+    expect(extractRequestModel("{bad json")).toBeUndefined();
+  });
 
     test("deepseek-v4.1-flash has authentic 384k output capacity and reasoning levels", () => {
       const ds = GOAT_MODELS["deepseek/deepseek-v4.1-flash"];
