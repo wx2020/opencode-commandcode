@@ -499,7 +499,8 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text"
+        "text",
+        "image"
       ],
       output: [
         "text"
@@ -508,6 +509,14 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      }
     }
   },
   "poolside/laguna-s-2.1-free": {
@@ -847,30 +856,30 @@ var opencode_commandcode_default = {
   server: CommandCodePlugin
 };
 export {
-  shouldEnableZdr,
-  rewriteUrlForCommandCode,
-  resolveApiKey,
-  isStealthModel,
-  isApiKeyValid,
-  extractRequestModel,
-  opencode_commandcode_default as default,
-  createCommandCodeHeaders,
-  createCommandCodeFetch,
-  ZERO_DATA_RETENTION_VALUE,
-  PROVIDER_NAME,
-  PLUGIN_ID,
-  HEADERS,
-  GOAT_MODELS,
-  ENV_ZDR_KEYS,
-  ENV_API_KEYS,
-  DUMMY_API_KEY,
-  CommandCodePlugin,
-  COMMANDCODE_RESPONSES_ENDPOINT,
-  COMMANDCODE_MODELS_ENDPOINT,
-  COMMANDCODE_CHAT_ENDPOINT,
-  COMMANDCODE_BASE_URL,
+  AUTH_LABELS,
   AUTH_METHODS,
-  AUTH_LABELS
+  COMMANDCODE_BASE_URL,
+  COMMANDCODE_CHAT_ENDPOINT,
+  COMMANDCODE_MODELS_ENDPOINT,
+  COMMANDCODE_RESPONSES_ENDPOINT,
+  CommandCodePlugin,
+  DUMMY_API_KEY,
+  ENV_API_KEYS,
+  ENV_ZDR_KEYS,
+  GOAT_MODELS,
+  HEADERS,
+  PLUGIN_ID,
+  PROVIDER_NAME,
+  ZERO_DATA_RETENTION_VALUE,
+  createCommandCodeFetch,
+  createCommandCodeHeaders,
+  opencode_commandcode_default as default,
+  extractRequestModel,
+  isApiKeyValid,
+  isStealthModel,
+  resolveApiKey,
+  rewriteUrlForCommandCode,
+  shouldEnableZdr
 };
 
-//# debugId=100B328AB98102D464756E2164756E21
+//# debugId=B89B4104179DA1F864756E2164756E21

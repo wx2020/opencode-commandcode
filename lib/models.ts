@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-26T05:57:18.039Z
+ * Last updated: 2026-09-28T02:49:26.211Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -485,7 +485,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     },
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
@@ -494,6 +495,14 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "reasoning": true,
     "interleaved": {
       "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      }
     }
   },
   "poolside/laguna-s-2.1-free": {
