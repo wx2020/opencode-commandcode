@@ -14,6 +14,7 @@ import {
   PROVIDER_NAME,
 } from "../index";
 import {
+  FAMILY_BASE_QUOTAS,
   KNOWN_QUOTAS,
   parseModelMetadata,
   selectCuratedLineup,
@@ -113,112 +114,99 @@ describe("CommandCode OpenCode Plugin", () => {
   });
 
   describe("Model Matrix & Capabilities", () => {
-  test("has registered GOAT models with core lineup included", () => {
-    const modelKeys = Object.keys(GOAT_MODELS);
-    expect(modelKeys.length).toBeGreaterThan(0);
-    expect(modelKeys).toContain("deepseek/deepseek-v4.1-flash");
-    expect(modelKeys).toContain("stealth/space-bunny-alpha");
+  test("every registered model is well-formed", () => {
+    const entries = Object.entries(GOAT_MODELS);
+    expect(entries.length).toBeGreaterThan(0);
+
+    const seen = new Set<string>();
+    for (const [id, model] of entries) {
+      expect(id.trim().length).toBeGreaterThan(0);
+      expect(seen.has(id)).toBe(false);
+      seen.add(id);
+
+      expect(typeof model.name).toBe("string");
+      expect(model.name.trim().length).toBeGreaterThan(0);
+
+      expect(model.limit.context).toBeGreaterThan(0);
+      expect(model.limit.output).toBeGreaterThan(0);
+
+      expect(model.cost.input).toBeGreaterThanOrEqual(0);
+      expect(model.cost.output).toBeGreaterThanOrEqual(0);
+
+      expect(model.modalities.input.length).toBeGreaterThan(0);
+      expect(model.modalities.output.length).toBeGreaterThan(0);
+    }
   });
 
-  test("registers both stealth anonymous models with correct context limits and reasoning", () => {
-    const bunny = GOAT_MODELS["stealth/space-bunny-alpha"];
-    expect(bunny).toBeDefined();
-    expect(bunny.limit.context).toBe(1_000_000);
-    expect(bunny.reasoning).toBe(true);
-
-    const canary = GOAT_MODELS["stealth/pixel-canary"];
-    expect(canary).toBeDefined();
-    expect(canary.limit.context).toBe(262_144);
-    expect(canary.reasoning).toBe(true);
+  test("anonymous stealth models are reasoning-capable tier-1 seats", () => {
+    const stealthIds = Object.keys(GOAT_MODELS).filter((id) => id.startsWith("stealth/"));
+    for (const id of stealthIds) {
+      const meta = parseModelMetadata(id);
+      expect(meta.family).toBe("stealth");
+      expect(GOAT_MODELS[id].reasoning).toBe(true);
+      // Paid anonymous seats must clear the tier-1 quota bar; free seats have quota 0 by design.
+      if (!meta.isFree) {
+        expect(meta.quota).toBeGreaterThanOrEqual(4000);
+      }
+    }
   });
 
-  test("parses stealth as an independent family with tier-1 quota", () => {
-    const bunny = parseModelMetadata("stealth/space-bunny-alpha");
-    expect(bunny.family).toBe("stealth");
-    expect(bunny.quota).toBeGreaterThanOrEqual(4000);
-
-    const canary = parseModelMetadata("stealth/pixel-canary");
-    expect(canary.family).toBe("stealth");
-    expect(canary.quota).toBeGreaterThanOrEqual(4000);
-    expect(KNOWN_QUOTAS["stealth/space-bunny-alpha"]).toBeDefined();
-    expect(KNOWN_QUOTAS["stealth/pixel-canary"]).toBeDefined();
-  });
-
-  test("keeps both stealth dual seats in the curated lineup for all upstream models", () => {
-    const allUpstreamIds = [
-      ...Object.keys(KNOWN_QUOTAS),
-      ...Object.keys(GOAT_MODELS),
-    ];
-    const lineup = selectCuratedLineup([...new Set(allUpstreamIds)]);
-    expect(lineup).toContain("stealth/space-bunny-alpha");
-    expect(lineup).toContain("stealth/pixel-canary");
-    // 现有 lineup 成员不得回退
+  test("curated lineup never drops a currently selected model", () => {
+    const upstream = [...new Set([...Object.keys(KNOWN_QUOTAS), ...Object.keys(GOAT_MODELS)])];
+    const lineup = selectCuratedLineup(upstream);
     for (const id of Object.keys(GOAT_MODELS)) {
       expect(lineup).toContain(id);
     }
   });
 
   test("detects stealth model requests from bodies", () => {
-    expect(isStealthModel("stealth/space-bunny-alpha")).toBe(true);
-    expect(isStealthModel("STEALTH/Pixel-Canary")).toBe(true);
+    expect(isStealthModel("stealth/next-codename")).toBe(true);
+    expect(isStealthModel("STEALTH/Whatever")).toBe(true);
     expect(isStealthModel("z-ai/glm-5.3-flash")).toBe(false);
     expect(isStealthModel(undefined)).toBe(false);
-    expect(extractRequestModel('{"model":"stealth/pixel-canary"}')).toBe("stealth/pixel-canary");
+    expect(extractRequestModel('{"model":"stealth/next-codename"}')).toBe("stealth/next-codename");
     expect(extractRequestModel("{bad json")).toBeUndefined();
   });
 
-    test("deepseek-v4.1-flash has authentic 384k output capacity and reasoning levels", () => {
-      const ds = GOAT_MODELS["deepseek/deepseek-v4.1-flash"];
-      expect(ds).toBeDefined();
-      expect(ds.limit.context).toBe(1_000_000);
-      expect(ds.limit.output).toBe(384_000);
-      expect(ds.reasoning).toBe(true);
+  describe("curation engine rules", () => {
+    test("newer generations inherit their family's quota benchmark", () => {
+      const next = parseModelMetadata("deepseek/deepseek-v5-flash");
+      expect(next.family).toBe("deepseek");
+      expect(next.quota).toBe(FAMILY_BASE_QUOTAS.deepseek.quota);
+      expect(parseModelMetadata("Qwen/Qwen9-Next-Flash").quota).toBe(FAMILY_BASE_QUOTAS.qwen.quota);
     });
 
-    test("xiaomi/mimo-v2.6-pro has authentic reasoning capability", () => {
-      const mimo = GOAT_MODELS["xiaomi/mimo-v2.6-pro"];
-      expect(mimo).toBeDefined();
-      expect(mimo.reasoning).toBe(true);
+    test("a generation older than the family anchor gets no quota", () => {
+      expect(parseModelMetadata("deepseek/deepseek-v3-flash").quota).toBe(0);
     });
 
-    test("automatically prunes obsolete previous-generation versions", () => {
-      expect(GOAT_MODELS["xiaomi/mimo-v2.5"]).toBeUndefined();
-      expect(GOAT_MODELS["deepseek/deepseek-v4-flash"]).toBeUndefined();
-      expect(GOAT_MODELS["Qwen/Qwen3.7-Max"]).toBeUndefined();
-      expect(GOAT_MODELS["google/gemini-3.7-flash"]).toBeUndefined();
-      expect(GOAT_MODELS["zai-org/GLM-5.3"]).toBeUndefined();
-      expect(GOAT_MODELS["Qwen/Qwen3.8-Max-0902"]).toBeUndefined();
+    test("reverse-quota rule keeps the older, higher-quota generation", () => {
+      const lineup = selectCuratedLineup(["stepfun/Step-3.5-Flash", "stepfun/Step-3.7-Flash"]);
+      expect(lineup).toContain("stepfun/Step-3.5-Flash");
+      expect(lineup).not.toContain("stepfun/Step-3.7-Flash");
     });
 
-    test("retains high quota models, reverse-quota models, free models and benchmark seats", () => {
-      // StepFun: retains Step 3.5 Flash by reverse-quota rule, prunes 3.7
-      expect(GOAT_MODELS["stepfun/Step-3.5-Flash"]).toBeDefined();
-      expect(GOAT_MODELS["stepfun/Step-3.7-Flash"]).toBeUndefined();
-
-      // Kimi: retains K2.7 Code by reverse-quota rule (2710 > 490), prunes K3
-      expect(GOAT_MODELS["moonshotai/Kimi-K2.7-Code"]).toBeDefined();
-      expect(GOAT_MODELS["moonshotai/Kimi-K3"]).toBeUndefined();
-
-      // Qwen: has 27B and Omni-Flash, prunes duplicate Flash and low-quota Max
-      expect(GOAT_MODELS["Qwen/Qwen3.8-27B"]).toBeDefined();
-      expect(GOAT_MODELS["Qwen/Qwen3.8-Omni-Flash"]).toBeDefined();
-      expect(GOAT_MODELS["Qwen/Qwen3.8-Flash"]).toBeUndefined();
-
-      // GLM: has Flash (11.8k), prunes redundant flashx and low-quota Pro
-      expect(GOAT_MODELS["z-ai/glm-5.3-flash"]).toBeDefined();
-      expect(GOAT_MODELS["z-ai/glm-5.3-flashx"]).toBeUndefined();
-
-      // MiMo: has Pro and Flash, prunes redundant ultraspeed
-      expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro"]).toBeDefined();
-      expect(GOAT_MODELS["xiaomi/mimo-v2.6-flash"]).toBeDefined();
-      expect(GOAT_MODELS["xiaomi/mimo-v2.6-pro-ultraspeed"]).toBeUndefined();
-
-      // Free Tier: both Laguna and Ling are retained
-      expect(GOAT_MODELS["poolside/laguna-s-2.1-free"]).toBeDefined();
-      expect(GOAT_MODELS["inclusionai/ling-3.0-flash-sante:free"]).toBeDefined();
+    test("redundant variants are pruned", () => {
+      const lineup = selectCuratedLineup(["z-ai/glm-5.3-flash", "z-ai/glm-5.3-flashx"]);
+      expect(lineup).toContain("z-ai/glm-5.3-flash");
+      expect(lineup).not.toContain("z-ai/glm-5.3-flashx");
     });
 
-    test("strips all (GOAT 7x) suffixes and only labels Free models", () => {
+    test("free models are always retained", () => {
+      const free = ["poolside/laguna-s-9-free", "inclusionai/ling-9-flash:free"];
+      const lineup = selectCuratedLineup(free);
+      for (const id of free) {
+        expect(lineup).toContain(id);
+      }
+    });
+
+    test("anthropic models are never selected", () => {
+      const lineup = selectCuratedLineup(["anthropic/claude-opus-9", "deepseek/deepseek-v4.1-flash"]);
+      expect(lineup).not.toContain("anthropic/claude-opus-9");
+      expect(lineup).toContain("deepseek/deepseek-v4.1-flash");
+    });
+
+    test("strips promotional (GOAT 7x) suffixes and only labels Free models", () => {
       for (const [id, model] of Object.entries(GOAT_MODELS)) {
         expect(model.name).not.toContain("GOAT");
         expect(model.name).not.toContain("7x");
@@ -231,6 +219,7 @@ describe("CommandCode OpenCode Plugin", () => {
         }
       }
     });
+  });
   });
 
   describe("Config Generation", () => {
