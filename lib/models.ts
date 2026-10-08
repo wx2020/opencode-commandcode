@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-09-28T02:49:26.211Z
+ * Last updated: 2026-10-08T13:19:21.814Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -348,17 +348,17 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       }
     }
   },
-  "gpt-6-astra": {
-    "name": "GPT-6 Astra",
+  "gpt-6.1-sol": {
+    "name": "GPT-6.1 Sol",
     "limit": {
       "context": 1050000,
       "output": 128000
     },
     "cost": {
-      "input": 1.4286,
-      "output": 7.1429,
-      "cache_read": 0.1429,
-      "cache_write": 1.7857
+      "input": 0.2857,
+      "output": 1.4286,
+      "cache_read": 0.0143,
+      "cache_write": 0.3571
     },
     "modalities": {
       "input": [
@@ -566,6 +566,56 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "high": {
         "reasoningEffort": "high"
       }
+    }
+  },
+  "stealth/glyph-cluster:free": {
+    "name": "Glyph Cluster (Free)",
+    "limit": {
+      "context": 256000,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    }
+  },
+  "inclusionai/ling-3.1-flash:free": {
+    "name": "Ling 3.1 Flash (Free)",
+    "limit": {
+      "context": 262144,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
     }
   },
   "moonshotai/Kimi-K2.7-Code": {

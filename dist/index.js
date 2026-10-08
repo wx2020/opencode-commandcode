@@ -367,17 +367,17 @@ var GOAT_MODELS = {
       }
     }
   },
-  "gpt-6-astra": {
-    name: "GPT-6 Astra",
+  "gpt-6.1-sol": {
+    name: "GPT-6.1 Sol",
     limit: {
       context: 1050000,
       output: 128000
     },
     cost: {
-      input: 1.4286,
-      output: 7.1429,
-      cache_read: 0.1429,
-      cache_write: 1.7857
+      input: 0.2857,
+      output: 1.4286,
+      cache_read: 0.0143,
+      cache_write: 0.3571
     },
     modalities: {
       input: [
@@ -585,6 +585,56 @@ var GOAT_MODELS = {
       high: {
         reasoningEffort: "high"
       }
+    }
+  },
+  "stealth/glyph-cluster:free": {
+    name: "Glyph Cluster (Free)",
+    limit: {
+      context: 256000,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    }
+  },
+  "inclusionai/ling-3.1-flash:free": {
+    name: "Ling 3.1 Flash (Free)",
+    limit: {
+      context: 262144,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
     }
   },
   "moonshotai/Kimi-K2.7-Code": {
@@ -909,4 +959,4 @@ export {
   syncOpencodeConfig
 };
 
-//# debugId=8894D9E73E3089D464756E2164756E21
+//# debugId=BFD8EE74D33A794864756E2164756E21
