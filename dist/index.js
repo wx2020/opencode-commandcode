@@ -1,3 +1,8 @@
+// index.ts
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+
 // lib/constants.ts
 var PLUGIN_ID = "commandcode";
 var PROVIDER_NAME = "CommandCode (GOAT Plan)";
@@ -725,7 +730,6 @@ var GOAT_MODELS = {
     }
   }
 };
-
 // lib/auth.ts
 function resolveApiKey(keyFromAuth) {
   if (keyFromAuth && keyFromAuth.trim().length > 0 && keyFromAuth !== DUMMY_API_KEY) {
@@ -750,7 +754,6 @@ var AUTH_METHODS = [
     label: AUTH_LABELS.API_KEY
   }
 ];
-
 // lib/fetch.ts
 function rewriteUrlForCommandCode(requestInput) {
   const originalUrl = requestInput instanceof URL ? requestInput.toString() : typeof requestInput === "string" ? requestInput : requestInput.url;
@@ -809,52 +812,69 @@ function createCommandCodeFetch(getAuth, fallbackApiKey) {
 }
 
 // index.ts
-var CommandCodePlugin = async (_input) => {
+var OPENCODE_SCHEMA = "https://opencode.ai/config.json";
+var PROVIDER_PACKAGE = "@ai-sdk/openai-compatible";
+var CONFIG_CANDIDATES = ["opencode.jsonc", "opencode.json", "config.json"];
+function buildProviderConfig(models2 = GOAT_MODELS) {
   return {
-    config: async (cfg) => {
-      cfg.provider ??= {};
-      const existing = cfg.provider[PLUGIN_ID] ?? {};
-      cfg.provider[PLUGIN_ID] = {
-        name: PROVIDER_NAME,
-        api: COMMANDCODE_BASE_URL,
-        npm: "@ai-sdk/openai-compatible",
-        env: [...ENV_API_KEYS],
-        ...existing,
-        options: {
-          baseURL: COMMANDCODE_BASE_URL,
-          ...existing.options ?? {}
-        },
-        models: {
-          ...GOAT_MODELS,
-          ...existing.models ?? {}
-        }
-      };
-    },
-    auth: {
-      provider: PLUGIN_ID,
-      async loader(getAuth) {
-        const auth2 = await getAuth();
-        const apiKey = resolveApiKey(auth2?.type === "api" ? auth2.key : undefined);
-        return {
-          apiKey,
-          baseURL: COMMANDCODE_BASE_URL,
-          fetch: createCommandCodeFetch(getAuth, apiKey)
-        };
-      },
-      methods: AUTH_METHODS
-    },
-    provider: {
-      id: PLUGIN_ID,
-      async models(provider, _ctx) {
-        return provider.models;
-      }
-    }
+    name: PROVIDER_NAME,
+    npm: PROVIDER_PACKAGE,
+    options: { baseURL: COMMANDCODE_BASE_URL },
+    models: models2
   };
-};
-var opencode_commandcode_default = {
+}
+function renderOpencodeConfig(existing, models2 = GOAT_MODELS) {
+  const prev = existing && typeof existing === "object" ? existing : {};
+  const next = { $schema: prev.$schema ?? OPENCODE_SCHEMA };
+  for (const [key, value] of Object.entries(prev)) {
+    if (key === "$schema" || key === "provider")
+      continue;
+    next[key] = value;
+  }
+  const providers = { ...prev.provider ?? {} };
+  providers[PLUGIN_ID] = buildProviderConfig(models2);
+  next.provider = providers;
+  return next;
+}
+function resolveConfigPath() {
+  const dir = join(homedir(), ".config", "opencode");
+  for (const name of CONFIG_CANDIDATES) {
+    const candidate = join(dir, name);
+    if (existsSync(candidate))
+      return candidate;
+  }
+  return join(dir, "opencode.jsonc");
+}
+function syncOpencodeConfig(models2 = GOAT_MODELS) {
+  const path = resolveConfigPath();
+  let existing = {};
+  if (existsSync(path)) {
+    const raw = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
+    try {
+      existing = JSON.parse(raw);
+    } catch {
+      return { path, changed: false };
+    }
+  }
+  const text = `${JSON.stringify(renderOpencodeConfig(existing, models2), null, 2)}
+`;
+  const current = existsSync(path) ? readFileSync(path, "utf8") : "";
+  const changed = current !== text;
+  if (changed) {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, text);
+  }
+  return { path, changed };
+}
+var CommandCodePlugin = {
   id: PLUGIN_ID,
-  server: CommandCodePlugin
+  setup: async () => {
+    try {
+      syncOpencodeConfig();
+    } catch {}
+  }
 };
+var opencode_commandcode_default = CommandCodePlugin;
 export {
   AUTH_LABELS,
   AUTH_METHODS,
@@ -862,24 +882,31 @@ export {
   COMMANDCODE_CHAT_ENDPOINT,
   COMMANDCODE_MODELS_ENDPOINT,
   COMMANDCODE_RESPONSES_ENDPOINT,
+  CONFIG_CANDIDATES,
   CommandCodePlugin,
   DUMMY_API_KEY,
   ENV_API_KEYS,
   ENV_ZDR_KEYS,
   GOAT_MODELS,
   HEADERS,
+  OPENCODE_SCHEMA,
   PLUGIN_ID,
   PROVIDER_NAME,
+  PROVIDER_PACKAGE,
   ZERO_DATA_RETENTION_VALUE,
+  buildProviderConfig,
   createCommandCodeFetch,
   createCommandCodeHeaders,
   opencode_commandcode_default as default,
   extractRequestModel,
   isApiKeyValid,
   isStealthModel,
+  renderOpencodeConfig,
   resolveApiKey,
+  resolveConfigPath,
   rewriteUrlForCommandCode,
-  shouldEnableZdr
+  shouldEnableZdr,
+  syncOpencodeConfig
 };
 
-//# debugId=B89B4104179DA1F864756E2164756E21
+//# debugId=8894D9E73E3089D464756E2164756E21

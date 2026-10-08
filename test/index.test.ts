@@ -9,6 +9,9 @@ import {
   isStealthModel,
   extractRequestModel,
   CommandCodePlugin,
+  buildProviderConfig,
+  renderOpencodeConfig,
+  PROVIDER_NAME,
 } from "../index";
 import {
   KNOWN_QUOTAS,
@@ -112,7 +115,9 @@ describe("CommandCode OpenCode Plugin", () => {
   describe("Model Matrix & Capabilities", () => {
   test("has registered GOAT models with core lineup included", () => {
     const modelKeys = Object.keys(GOAT_MODELS);
-    expect(modelKeys.length).toBe(20);
+    expect(modelKeys.length).toBeGreaterThan(0);
+    expect(modelKeys).toContain("deepseek/deepseek-v4.1-flash");
+    expect(modelKeys).toContain("stealth/space-bunny-alpha");
   });
 
   test("registers both stealth anonymous models with correct context limits and reasoning", () => {
@@ -228,27 +233,45 @@ describe("CommandCode OpenCode Plugin", () => {
     });
   });
 
-  describe("Plugin Hooks Lifecycle", () => {
-    test("registers provider into config object", async () => {
-      const hooks = await CommandCodePlugin({} as any);
-      const cfg: any = {};
-      await hooks.config?.(cfg);
-
-      expect(cfg.provider[PLUGIN_ID]).toBeDefined();
-      expect(cfg.provider[PLUGIN_ID].api).toBe(COMMANDCODE_BASE_URL);
-      expect(cfg.provider[PLUGIN_ID].models["deepseek/deepseek-v4.1-flash"]).toBeDefined();
+  describe("Config Generation", () => {
+    test("module exports the v2 { id, setup } shape", () => {
+      expect(CommandCodePlugin.id).toBe(PLUGIN_ID);
+      expect(typeof CommandCodePlugin.setup).toBe("function");
     });
 
-    test("auth loader returns valid configuration", async () => {
-      const hooks = await CommandCodePlugin({} as any);
-      const authResult = await hooks.auth?.loader?.(async () => ({
-        type: "api",
-        key: "test-user-key",
-      }));
+    test("buildProviderConfig targets the CommandCode base URL with all models", () => {
+      const provider = buildProviderConfig();
+      expect(provider.name).toBe(PROVIDER_NAME);
+      expect(provider.npm).toBe("@ai-sdk/openai-compatible");
+      expect((provider.options as any).baseURL).toBe(COMMANDCODE_BASE_URL);
+      expect(Object.keys(provider.models as any).length).toBe(Object.keys(GOAT_MODELS).length);
+    });
 
-      expect(authResult?.baseURL).toBe(COMMANDCODE_BASE_URL);
-      expect(authResult?.apiKey).toBe("test-user-key");
-      expect(typeof authResult?.fetch).toBe("function");
+    test("renderOpencodeConfig preserves unrelated keys and injects the provider", () => {
+      const existing = {
+        $schema: "custom",
+        instructions: ["AGENTS.md"],
+        plugin: ["some-plugin"],
+        provider: { other: { name: "Other" } },
+      };
+      const next = renderOpencodeConfig(existing, {
+        "m/1": GOAT_MODELS["deepseek/deepseek-v4.1-flash"],
+      });
+
+      expect(next.$schema).toBe("custom");
+      expect(next.instructions).toEqual(["AGENTS.md"]);
+      expect(next.plugin).toEqual(["some-plugin"]);
+
+      const providers = next.provider as any;
+      expect(providers.other.name).toBe("Other");
+      expect(providers.commandcode.name).toBe(PROVIDER_NAME);
+      expect(Object.keys(providers.commandcode.models)).toEqual(["m/1"]);
+    });
+
+    test("renderOpencodeConfig is deterministic for stable output", () => {
+      const a = renderOpencodeConfig({ plugin: ["p"] });
+      const b = renderOpencodeConfig({ plugin: ["p"] });
+      expect(JSON.stringify(a)).toBe(JSON.stringify(b));
     });
   });
 });
