@@ -24,41 +24,58 @@
 
 ## 🚀 跨设备安装与正确配置方案 (Installation & Setup)
 
-### 1. 插件配置（V2 全局 `~/.config/opencode/opencode.jsonc`）
+### 1. 安装插件
 
 > [!IMPORTANT]
-> V2 的配置键是 **`plugins`（复数）**；V1 的 `plugin` 仅为兼容旧写法。`opencode plugin add` 也会写入该键。
+> V2 的配置键是 **`plugins`（复数）**；V1 的 `plugin` 仅为兼容旧写法。
 
-**正确写法（官方推荐，首选）：**
+#### 方案 A（推荐，跨平台可用）：指向本地仓库的绝对路径
+
+```bash
+git clone https://github.com/wx2020/opencode-commandcode.git ~/opencode-commandcode
+```
+
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": [
-    "github:wx2020/opencode-commandcode"
-  ]
+  "plugins": ["/home/you/opencode-commandcode"]
+  // Windows 写 "C:/Users/you/opencode-commandcode"（或 "C:\\Users\\you\\opencode-commandcode"）
 }
 ```
 
-**钉版本（可选，注意缓存目录会带 `#`）：**
-```jsonc
-{
-  "plugins": [
-    "github:wx2020/opencode-commandcode#v1.3.0"
-  ]
-}
+仓库自带 `dist/` 构建产物，克隆后**无需**再执行 `bun run build`。
+
+#### 方案 B：按“已安装包”处理
+
+```text
+① 把 dist/ lib/ index.ts package.json 拷到
+   ~/.config/opencode/node_modules/opencode-commandcode/
+② 新建 ~/.config/opencode/plugins/commandcode.ts：
+   import plugin from "opencode-commandcode";
+   export default plugin;
 ```
 
-> [!CAUTION]
-> **常见错误写法（踩坑预警）：**
-> ```jsonc
-> "plugins": ["opencode-commandcode@github:wx2020/opencode-commandcode#v1.3.0"]  // ✗ 错误写法，请勿添加别名前缀
-> ```
+#### 方案 C：npm registry 规格
 
-**核心要点：**
-- 必须是 **`github:owner/repo`**，不要带 `包名@github:...`；
-- 首选**不带 `#tag`**，少一个带有 `#` 特殊字符的本地缓存路径坑；
-- 严禁使用 `file://` 绕过（确保插件规范化安装与加载）；
-- **不要再把 provider 写进配置**：自 v1.3.0 起 Provider/模型/认证全部在运行时注册，配置里出现 `provider.commandcode` 或 `providers.commandcode` 都属于遗留垃圾，应当删除。
+若发布到自己的 scope（如 `@yourname/opencode-commandcode`），可直接：
+
+```bash
+opencode plugin add @yourname/opencode-commandcode
+```
+
+> [!WARNING]
+> **`github:` 规格目前在 Windows 上装不上（OpenCode 侧 bug，与本插件无关）**
+> `opencode plugin add github:wx2020/opencode-commandcode` 与配置里 `"plugins": ["github:owner/repo"]` 都会失败：
+> - `plugin add` → `NpmInstallFailedError: git dep preparation failed`
+> - 配置写法 → 插件加载不出来，调用模型时报 `Model unavailable`
+>
+> 原因：OpenCode V2 改用 npm arborist/pacote 安装 git 依赖，pacote 会在克隆目录里 `spawn("npm", ["install", …])`；而 Windows 上 bare `npm` 是 shell 脚本（`spawn` 报 `ENOENT`），`npm.cmd` 在 Node 20+ 下无 shell 直接 spawn 会报 `EINVAL`，子进程零输出退出，git 准备步骤必然失败。
+> 另：npm 上 `opencode-commandcode` 这个名称**已被他人占用**（0.1.0，维护者 dmytrokyrychuk），不要用 `opencode plugin add opencode-commandcode`。
+
+**核心要点（无论选哪种方案）：**
+- 不要再用 V1 的 `"plugin": [...]` 键；不要写 `包名@github:...` 这类别名前缀；
+- **不要把 provider 写进配置**：自 v1.3.0 起 Provider / 模型 / 认证方式全部在运行时注册；
+- 配置里若出现 `provider.commandcode` 或 `providers.commandcode` 都属于 v1.2.0 时代遗留，会遮蔽运行时模型清单，应删除。
 
 ---
 
@@ -77,24 +94,23 @@
    # PowerShell
    $env:CMD_API_KEY="user_..."
    ```
-3. **已有凭据直接继承**：
-   已在 `~/.local/share/opencode/auth.json` 中配置过 `commandcode` 的设备，安装后直接继承已有 key，无需重复输入。
+3. **已有凭据自动继承**：凭据存放于 OpenCode 的 SQLite（`opencode auth list` 显示 `stored`）。从 V1 迁移过来的 `commandcode` 凭据依然有效，无需重新输入——注意 V2 已**不再读取** `~/.local/share/opencode/auth.json`。
 
 ---
 
 ### 3. 安装后自检与验证
 
 ```bash
-# 1. 检查插件缓存主包（路径里可能含 #tag）
-ls ~/.cache/opencode/packages/github:wx2020/opencode-commandcode*/node_modules/opencode-commandcode/package.json
+# 1. 确认插件已被加载（V2）
+opencode plugin list
 
-# 2. 检查 Provider/模型是否在运行时注册成功
+# 2. 确认 Provider / 模型在运行时注册成功（期望 commandcode/... 共 22 个）
 opencode models | grep commandcode
 
-# 或通过 HTTP 接口核对（V2 二进制）：
-#   MSYS_NO_PATHCONV=1 opencode api GET /api/provider
+# 3. 确认凭据可用
+opencode auth list | grep -i "CommandCode"
 
-# 3. 确认配置里没有遗留的 commandcode provider 块
+# 4. 确认配置里没有遗留的 commandcode provider 块（应为 0）
 python -c "import json;d=json.load(open('opencode.jsonc'));print(d.get('provider',{}).keys(), d.get('providers',{}).keys())"
 ```
 
@@ -115,10 +131,11 @@ OpenCode **不热载**已加载的插件模块（ESM 模块会被进程缓存）
 
 ### 5. 若安装卡死或缓存残缺的恢复方法
 
-```bash
-# 清掉该插件的本地缓存目录后重启 opencode
-rm -rf ~/.cache/opencode/packages/github:wx2020
-```
+- **方案 A/B（本地路径）**：删掉 `plugins` 里那条失效路径、或重命名 `plugins/commandcode.ts`，重启后重新指向新的仓库目录/重新拷贝包即可；
+- **方案 C（npm registry）**：清掉该插件的本地缓存后重启 OpenCode：
+  ```bash
+  rm -rf ~/.cache/opencode/packages/<包名>
+  ```
 
 > [!WARNING]
 > **切忌在 OpenCode 正在安装时执行 `rm -rf` 缓存**，否则会引发读写竞态导致缓存文件损坏残缺。
@@ -128,10 +145,10 @@ rm -rf ~/.cache/opencode/packages/github:wx2020
 ### 📌 一句话快速清单
 
 ```text
-plugins: ["github:wx2020/opencode-commandcode"]
-key:     opencode auth login → CommandCode，或 CMD_API_KEY
-然后:    重启 OpenCode / OpenChamber
-验:      opencode models | grep commandcode（模型由插件在运行时注册）
+装:  git clone 仓库 → 配置里写 "plugins": ["<仓库绝对路径>"]
+key: opencode auth login → CommandCode，或 CMD_API_KEY
+然后: 重启 OpenCode / OpenChamber
+验:  opencode models | grep commandcode（模型由插件在运行时注册，共 22 个）
 ```
 
 ---

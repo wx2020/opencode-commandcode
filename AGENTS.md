@@ -73,7 +73,7 @@
 - **查询注意**：后台 service 的 HTTP API 需要口令（`opencode service get password` → 环境变量 `OPENCODE_PASSWORD`），否则 `models`/`api` 会输出 0 行/空 JSON 造成"未注册"的误判；managed server 通常无需口令。
 - **⚠️ 两个 server 的坑**：本机 OpenChamber managed server（`~/.config/openchamber/managed-opencode/<pid>.json` 里有 port）与后台 service（`opencode service status`）是**两个独立进程**；只重启 OpenChamber 会出现「聊天界面正常、CLI 报 `Model unavailable`」的分裂（详见全局 AGENTS.md）。
 
-- **新设备安装（V2 写法，2026-10-12 起）**：`opencode plugin add github:wx2020/opencode-commandcode`（写入全局配置 `plugins` 数组），或手工在 `~/.config/opencode/opencode.jsonc` 写 `"plugins": ["github:wx2020/opencode-commandcode"]`；本地/未发布版本可用绝对路径（`"plugins": ["<dir 或 index.ts 绝对路径>"]`，已在隔离环境验证）或「拷贝包到 `~/.config/opencode/node_modules/opencode-commandcode` + 放一个 `~/.config/opencode/plugins/commandcode.ts` 加载器」。**切勿**再往配置里写 `provider.commandcode`（v1.2.0 时代遗留，会遮蔽运行时清单）。**注意：v1.3.0 尚未提交/发布，远端 main 仍是 v1.2.0（有配置重复 bug），从 GitHub 装只能拿到 1.2.0，需先发版**。
+- **新设备安装（V2 写法，2026-10-12 起）**：**v1.3.0 已发布**（commit `c32aa6c`，tag `v1.3.0`）。⚠️ **Windows 上 `github:` 规格装不上**（opencode 用 npm arborist/pacote，pacote 在克隆里 `spawn("npm")` 在 Windows 必失败：ENOENT/EINVAL → `git dep preparation failed`），因此 `opencode plugin add github:wx2020/opencode-commandcode` 与配置里 `"plugins": ["github:..."]` 都不可用。可用路径：**① 配置里写绝对路径**（`"plugins": ["<repo 绝对路径>"]`，已端到端实测）；**② 拷贝包到 `<config>/node_modules/opencode-commandcode` + 在 `<config>/plugins/` 放加载器**；③ npm registry 规格（本包 npm 名 `opencode-commandcode` 已被他人占用，需自有 scope）。**切勿**再往配置里写 `provider.commandcode`（v1.2.0 时代遗留，会遮蔽运行时清单）。
 
 ## Maintenance
 - 每次改完代码或完成新的分析后，必须调用 `memory-update` skill 检查并更新本文件。
