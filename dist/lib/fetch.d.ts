@@ -22,6 +22,15 @@ export declare function shouldEnableZdr(headers?: Headers): boolean;
  */
 export declare function createCommandCodeHeaders(existingHeaders: HeadersInit | undefined, apiKey?: string, body?: unknown): Headers;
 /**
+ * Applies CommandCode request headers to a mutable header record.
+ *
+ * Used by the V2 `model.request` hook, where the model id is already known, so
+ * the body never has to be parsed. Stealth models always drop the ZDR header;
+ * every other request enables zero data retention when asked to through the
+ * environment.
+ */
+export declare function applyCommandCodeRequestHeaders(headers: Record<string, string>, model?: string | null): void;
+/**
  * Creates a custom fetch wrapper tailored for OpenCode SDK integration with CommandCode.
  * Intercepts requests to inject real credentials and rewrite routing dynamically.
  */

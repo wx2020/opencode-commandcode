@@ -1,8 +1,3 @@
-// index.ts
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
-
 // lib/constants.ts
 var PLUGIN_ID = "commandcode";
 var PROVIDER_NAME = "CommandCode (GOAT Plan)";
@@ -23,6 +18,97 @@ var AUTH_LABELS = {
   API_KEY: "CommandCode Studio API Key (GOAT Plan)",
   INSTRUCTIONS: "Enter your CommandCode API Key generated from CommandCode Studio (starts with user_...)"
 };
+
+// lib/auth.ts
+function resolveApiKey(keyFromAuth) {
+  if (keyFromAuth && keyFromAuth.trim().length > 0 && keyFromAuth !== DUMMY_API_KEY) {
+    return keyFromAuth.trim();
+  }
+  for (const envVar of ENV_API_KEYS) {
+    const val = process.env[envVar];
+    if (val && val.trim().length > 0) {
+      return val.trim();
+    }
+  }
+  return DUMMY_API_KEY;
+}
+function isApiKeyValid(apiKey) {
+  if (!apiKey)
+    return false;
+  return apiKey !== DUMMY_API_KEY && apiKey.trim().length > 0;
+}
+var AUTH_METHODS = [
+  {
+    type: "api",
+    label: AUTH_LABELS.API_KEY
+  }
+];
+
+// lib/fetch.ts
+function rewriteUrlForCommandCode(requestInput) {
+  const originalUrl = requestInput instanceof URL ? requestInput.toString() : typeof requestInput === "string" ? requestInput : requestInput.url;
+  if (originalUrl.includes("api.commandcode.ai")) {
+    return originalUrl;
+  }
+  return originalUrl.replace(/^https?:\/\/[^/]+(\/v1)?/, COMMANDCODE_BASE_URL);
+}
+function isStealthModel(model) {
+  return typeof model === "string" && model.toLowerCase().startsWith("stealth/");
+}
+function extractRequestModel(body) {
+  try {
+    if (typeof body === "string") {
+      return JSON.parse(body)?.model;
+    }
+    if (body && typeof body === "object") {
+      return body.model;
+    }
+  } catch {}
+  return;
+}
+function shouldEnableZdr(headers) {
+  for (const key of ENV_ZDR_KEYS) {
+    if (process.env[key] === "1" || process.env[key]?.toLowerCase() === "true") {
+      return true;
+    }
+  }
+  return headers ? headers.has(HEADERS.ZDR) : false;
+}
+function createCommandCodeHeaders(existingHeaders, apiKey, body) {
+  const headers = new Headers(existingHeaders);
+  if (apiKey && apiKey !== DUMMY_API_KEY) {
+    headers.set(HEADERS.AUTHORIZATION, `Bearer ${apiKey}`);
+  }
+  if (isStealthModel(extractRequestModel(body))) {
+    headers.delete(HEADERS.ZDR);
+    return headers;
+  }
+  if (shouldEnableZdr(headers) && !headers.has(HEADERS.ZDR)) {
+    headers.set(HEADERS.ZDR, ZERO_DATA_RETENTION_VALUE);
+  }
+  return headers;
+}
+function applyCommandCodeRequestHeaders(headers, model) {
+  if (isStealthModel(model)) {
+    delete headers[HEADERS.ZDR];
+    return;
+  }
+  if (!headers[HEADERS.ZDR] && shouldEnableZdr()) {
+    headers[HEADERS.ZDR] = ZERO_DATA_RETENTION_VALUE;
+  }
+}
+function createCommandCodeFetch(getAuth, fallbackApiKey) {
+  return async (requestInput, init) => {
+    const currentAuth = await getAuth();
+    const resolvedKey = resolveApiKey(currentAuth?.type === "api" ? currentAuth.key : fallbackApiKey);
+    const headers = createCommandCodeHeaders(init?.headers, resolvedKey, init?.body);
+    const targetUrl = rewriteUrlForCommandCode(requestInput);
+    return fetch(targetUrl, {
+      ...init,
+      headers
+    });
+  };
+}
 
 // lib/models.ts
 var GOAT_MODELS = {
@@ -780,183 +866,124 @@ var GOAT_MODELS = {
     }
   }
 };
-// lib/auth.ts
-function resolveApiKey(keyFromAuth) {
-  if (keyFromAuth && keyFromAuth.trim().length > 0 && keyFromAuth !== DUMMY_API_KEY) {
-    return keyFromAuth.trim();
-  }
-  for (const envVar of ENV_API_KEYS) {
-    const val = process.env[envVar];
-    if (val && val.trim().length > 0) {
-      return val.trim();
-    }
-  }
-  return DUMMY_API_KEY;
-}
-function isApiKeyValid(apiKey) {
-  if (!apiKey)
-    return false;
-  return apiKey !== DUMMY_API_KEY && apiKey.trim().length > 0;
-}
-var AUTH_METHODS = [
-  {
-    type: "api",
-    label: AUTH_LABELS.API_KEY
-  }
-];
-// lib/fetch.ts
-function rewriteUrlForCommandCode(requestInput) {
-  const originalUrl = requestInput instanceof URL ? requestInput.toString() : typeof requestInput === "string" ? requestInput : requestInput.url;
-  if (originalUrl.includes("api.commandcode.ai")) {
-    return originalUrl;
-  }
-  return originalUrl.replace(/^https?:\/\/[^/]+(\/v1)?/, COMMANDCODE_BASE_URL);
-}
-function isStealthModel(model) {
-  return typeof model === "string" && model.toLowerCase().startsWith("stealth/");
-}
-function extractRequestModel(body) {
-  try {
-    if (typeof body === "string") {
-      return JSON.parse(body)?.model;
-    }
-    if (body && typeof body === "object") {
-      return body.model;
-    }
-  } catch {}
-  return;
-}
-function shouldEnableZdr(headers) {
-  for (const key of ENV_ZDR_KEYS) {
-    if (process.env[key] === "1" || process.env[key]?.toLowerCase() === "true") {
-      return true;
-    }
-  }
-  return headers ? headers.has(HEADERS.ZDR) : false;
-}
-function createCommandCodeHeaders(existingHeaders, apiKey, body) {
-  const headers = new Headers(existingHeaders);
-  if (apiKey && apiKey !== DUMMY_API_KEY) {
-    headers.set(HEADERS.AUTHORIZATION, `Bearer ${apiKey}`);
-  }
-  if (isStealthModel(extractRequestModel(body))) {
-    headers.delete(HEADERS.ZDR);
-    return headers;
-  }
-  if (shouldEnableZdr(headers) && !headers.has(HEADERS.ZDR)) {
-    headers.set(HEADERS.ZDR, ZERO_DATA_RETENTION_VALUE);
-  }
-  return headers;
-}
-function createCommandCodeFetch(getAuth, fallbackApiKey) {
-  return async (requestInput, init) => {
-    const currentAuth = await getAuth();
-    const resolvedKey = resolveApiKey(currentAuth?.type === "api" ? currentAuth.key : fallbackApiKey);
-    const headers = createCommandCodeHeaders(init?.headers, resolvedKey, init?.body);
-    const targetUrl = rewriteUrlForCommandCode(requestInput);
-    return fetch(targetUrl, {
-      ...init,
-      headers
-    });
+
+// lib/provider.ts
+var PROVIDER_PACKAGE = "aisdk:@ai-sdk/openai-compatible";
+function buildProviderRuntimeInfo(id = PLUGIN_ID, name = PROVIDER_NAME, baseURL = COMMANDCODE_BASE_URL) {
+  return {
+    id,
+    name,
+    activation: "enabled",
+    package: PROVIDER_PACKAGE,
+    integrationID: id,
+    settings: { baseURL }
   };
+}
+function toModelInfo(id, definition, providerID = PLUGIN_ID, released = 0) {
+  const variants = definition.variants ? Object.entries(definition.variants).map(([variantID, settings]) => ({
+    id: variantID,
+    settings: { ...settings }
+  })) : [];
+  const model = {
+    id,
+    modelID: id,
+    providerID,
+    name: definition.name,
+    capabilities: {
+      tools: true,
+      input: [...definition.modalities.input],
+      output: [...definition.modalities.output]
+    },
+    variants,
+    time: { released },
+    cost: [
+      {
+        input: definition.cost.input,
+        output: definition.cost.output,
+        cache: {
+          read: definition.cost.cache_read ?? 0,
+          write: definition.cost.cache_write ?? 0
+        }
+      }
+    ],
+    status: "active",
+    enabled: true,
+    limit: {
+      context: definition.limit.context,
+      ...definition.limit.input === undefined ? {} : { input: definition.limit.input },
+      output: definition.limit.output
+    }
+  };
+  if (definition.interleaved?.field) {
+    model.compatibility = { reasoningField: definition.interleaved.field };
+  }
+  return model;
+}
+function buildModelInfos(models = GOAT_MODELS, providerID = PLUGIN_ID, released = 0) {
+  return Object.entries(models).map(([id, definition]) => toModelInfo(id, definition, providerID, released));
 }
 
 // index.ts
-var OPENCODE_SCHEMA = "https://opencode.ai/config.json";
-var PROVIDER_PACKAGE = "@ai-sdk/openai-compatible";
-var CONFIG_CANDIDATES = ["opencode.jsonc", "opencode.json", "config.json"];
-function buildProviderConfig(models2 = GOAT_MODELS) {
-  return {
-    name: PROVIDER_NAME,
-    npm: PROVIDER_PACKAGE,
-    options: { baseURL: COMMANDCODE_BASE_URL },
-    models: models2
-  };
-}
-function renderOpencodeConfig(existing, models2 = GOAT_MODELS) {
-  const prev = existing && typeof existing === "object" ? existing : {};
-  const next = { $schema: prev.$schema ?? OPENCODE_SCHEMA };
-  for (const [key, value] of Object.entries(prev)) {
-    if (key === "$schema" || key === "provider")
-      continue;
-    next[key] = value;
-  }
-  const providers = { ...prev.provider ?? {} };
-  providers[PLUGIN_ID] = buildProviderConfig(models2);
-  next.provider = providers;
-  return next;
-}
-function resolveConfigPath() {
-  const dir = join(homedir(), ".config", "opencode");
-  for (const name of CONFIG_CANDIDATES) {
-    const candidate = join(dir, name);
-    if (existsSync(candidate))
-      return candidate;
-  }
-  return join(dir, "opencode.jsonc");
-}
-function syncOpencodeConfig(models2 = GOAT_MODELS) {
-  const path = resolveConfigPath();
-  let existing = {};
-  if (existsSync(path)) {
-    const raw = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
-    try {
-      existing = JSON.parse(raw);
-    } catch {
-      return { path, changed: false };
-    }
-  }
-  const text = `${JSON.stringify(renderOpencodeConfig(existing, models2), null, 2)}
-`;
-  const current = existsSync(path) ? readFileSync(path, "utf8") : "";
-  const changed = current !== text;
-  if (changed) {
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, text);
-  }
-  return { path, changed };
-}
+var setupCommandCode = async (ctx) => {
+  await ctx.provider.transform((editor) => {
+    editor.update(PLUGIN_ID, (provider2) => {
+      Object.assign(provider2, buildProviderRuntimeInfo());
+    });
+    editor.models.set(PLUGIN_ID, buildModelInfos());
+  });
+  await ctx.integration.transform((editor) => {
+    editor.update(PLUGIN_ID, (integration) => {
+      integration.name = PROVIDER_NAME;
+    });
+    editor.method.update({
+      integrationID: PLUGIN_ID,
+      method: { type: "key", label: AUTH_LABELS.API_KEY }
+    });
+    editor.method.update({
+      integrationID: PLUGIN_ID,
+      method: { type: "env", names: [...ENV_API_KEYS] }
+    });
+  });
+  await ctx.session.hook("model.request", (event) => {
+    applyCommandCodeRequestHeaders(event.headers, event.model.id);
+  }, { providerID: PLUGIN_ID });
+};
 var CommandCodePlugin = {
   id: PLUGIN_ID,
-  setup: async () => {
-    try {
-      syncOpencodeConfig();
-    } catch {}
-  }
+  setup: setupCommandCode
 };
 var opencode_commandcode_default = CommandCodePlugin;
 export {
-  AUTH_LABELS,
-  AUTH_METHODS,
-  COMMANDCODE_BASE_URL,
-  COMMANDCODE_CHAT_ENDPOINT,
-  COMMANDCODE_MODELS_ENDPOINT,
-  COMMANDCODE_RESPONSES_ENDPOINT,
-  CONFIG_CANDIDATES,
-  CommandCodePlugin,
-  DUMMY_API_KEY,
-  ENV_API_KEYS,
-  ENV_ZDR_KEYS,
-  GOAT_MODELS,
-  HEADERS,
-  OPENCODE_SCHEMA,
-  PLUGIN_ID,
-  PROVIDER_NAME,
-  PROVIDER_PACKAGE,
-  ZERO_DATA_RETENTION_VALUE,
-  buildProviderConfig,
-  createCommandCodeFetch,
-  createCommandCodeHeaders,
-  opencode_commandcode_default as default,
-  extractRequestModel,
-  isApiKeyValid,
-  isStealthModel,
-  renderOpencodeConfig,
-  resolveApiKey,
-  resolveConfigPath,
-  rewriteUrlForCommandCode,
+  toModelInfo,
   shouldEnableZdr,
-  syncOpencodeConfig
+  setupCommandCode,
+  rewriteUrlForCommandCode,
+  resolveApiKey,
+  isStealthModel,
+  isApiKeyValid,
+  extractRequestModel,
+  opencode_commandcode_default as default,
+  createCommandCodeHeaders,
+  createCommandCodeFetch,
+  buildProviderRuntimeInfo,
+  buildModelInfos,
+  applyCommandCodeRequestHeaders,
+  ZERO_DATA_RETENTION_VALUE,
+  PROVIDER_PACKAGE,
+  PROVIDER_NAME,
+  PLUGIN_ID,
+  HEADERS,
+  GOAT_MODELS,
+  ENV_ZDR_KEYS,
+  ENV_API_KEYS,
+  DUMMY_API_KEY,
+  CommandCodePlugin,
+  COMMANDCODE_RESPONSES_ENDPOINT,
+  COMMANDCODE_MODELS_ENDPOINT,
+  COMMANDCODE_CHAT_ENDPOINT,
+  COMMANDCODE_BASE_URL,
+  AUTH_METHODS,
+  AUTH_LABELS
 };
 
-//# debugId=BFD8EE74D33A794864756E2164756E21
+//# debugId=BED1225C41B69EA164756E2164756E21

@@ -1,53 +1,32 @@
-import type { CommandCodeModelDefinition } from "./lib/types";
+import type { Plugin } from "@opencode/plugin";
 export * from "./lib/constants";
 export * from "./lib/types";
 export * from "./lib/models";
 export * from "./lib/auth";
 export * from "./lib/fetch";
+export * from "./lib/provider";
 /**
- * OpenCode JSON schema used in the generated config.
+ * Registers CommandCode through the OpenCode V2 plugin API:
+ *
+ * - `ctx.provider.transform` publishes the provider and its full model lineup,
+ *   so the lineup follows `GOAT_MODELS` on every start without reading or
+ *   writing the user's `opencode.json(c)`.
+ * - `ctx.integration.transform` publishes the key and environment auth methods,
+ *   keeping `/connect`, `auth login` and the `CMD_API_KEY` fallback working.
+ *   The stored credential lives in OpenCode's database keyed by
+ *   `integration_id = "commandcode"` and resolves through `integrationID`.
+ * - `ctx.session.hook("model.request", …)` restores the ZDR header injection and
+ *   the stealth-model ZDR opt-out that the V1 fetch wrapper used to provide.
+ *
+ * Everything here is idempotent: transforms are deterministic and no file is
+ * touched, so running setup repeatedly produces no diff.
  */
-export declare const OPENCODE_SCHEMA = "https://opencode.ai/config.json";
-/**
- * AI SDK package opencode uses to talk to CommandCode's OpenAI-compatible endpoint.
- */
-export declare const PROVIDER_PACKAGE = "@ai-sdk/openai-compatible";
-/**
- * Config files opencode reads from `~/.config/opencode`, in precedence order.
- */
-export declare const CONFIG_CANDIDATES: readonly ["opencode.jsonc", "opencode.json", "config.json"];
-export type JsonObject = Record<string, unknown>;
-/**
- * The `provider.commandcode` block for the opencode config.
- */
-export declare function buildProviderConfig(models?: Record<string, CommandCodeModelDefinition>): JsonObject;
-/**
- * Merges the CommandCode provider block into an existing opencode config,
- * preserving every other key (plugin, instructions, other providers, ...).
- */
-export declare function renderOpencodeConfig(existing: unknown, models?: Record<string, CommandCodeModelDefinition>): JsonObject;
-/**
- * Resolves the opencode config file to write, preferring one that already exists.
- */
-export declare function resolveConfigPath(): string;
-/**
- * Regenerates the `provider.commandcode.models` block from GOAT_MODELS and writes
- * it back to the opencode config, but only when the content actually changed
- * (so it never fights the config file watcher).
- */
-export declare function syncOpencodeConfig(models?: Record<string, CommandCodeModelDefinition>): {
-    path: string;
-    changed: boolean;
-};
+export declare const setupCommandCode: (ctx: Plugin.Context) => Promise<void>;
 /**
  * CommandCode Provider Plugin for OpenCode.
  *
- * opencode declares providers from config only, so on every start the plugin
- * regenerates `provider.commandcode.models` in the opencode config from
- * GOAT_MODELS. Model lineup updates therefore propagate on the next start.
+ * Registers the provider at runtime instead of writing it into the user
+ * config, so it can no longer collide with another config writer.
  */
-export declare const CommandCodePlugin: {
-    id: string;
-    setup: () => Promise<void>;
-};
+export declare const CommandCodePlugin: Plugin.Plugin;
 export default CommandCodePlugin;

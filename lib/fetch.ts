@@ -92,6 +92,28 @@ export function createCommandCodeHeaders(
 }
 
 /**
+ * Applies CommandCode request headers to a mutable header record.
+ *
+ * Used by the V2 `model.request` hook, where the model id is already known, so
+ * the body never has to be parsed. Stealth models always drop the ZDR header;
+ * every other request enables zero data retention when asked to through the
+ * environment.
+ */
+export function applyCommandCodeRequestHeaders(
+  headers: Record<string, string>,
+  model?: string | null,
+): void {
+  if (isStealthModel(model)) {
+    delete headers[HEADERS.ZDR];
+    return;
+  }
+
+  if (!headers[HEADERS.ZDR] && shouldEnableZdr()) {
+    headers[HEADERS.ZDR] = ZERO_DATA_RETENTION_VALUE;
+  }
+}
+
+/**
  * Creates a custom fetch wrapper tailored for OpenCode SDK integration with CommandCode.
  * Intercepts requests to inject real credentials and rewrite routing dynamically.
  */

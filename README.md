@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/wx2020/opencode-commandcode/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/wx2020/opencode-commandcode/ci.yml?branch=main&label=CI&style=flat-square" alt="CI Status"></a>
   <a href="https://github.com/wx2020/opencode-commandcode/blob/main/LICENSE"><img src="https://img.shields.io/github/license/wx2020/opencode-commandcode?style=flat-square" alt="License"></a>
-  <a href="https://github.com/wx2020/opencode-commandcode"><img src="https://img.shields.io/badge/OpenCode-Plugin%20V1-blue?style=flat-square" alt="OpenCode Plugin V1"></a>
+  <a href="https://github.com/wx2020/opencode-commandcode"><img src="https://img.shields.io/badge/OpenCode-Plugin%20V2-blue?style=flat-square" alt="OpenCode Plugin V2"></a>
   <a href="https://github.com/wx2020/opencode-commandcode"><img src="https://img.shields.io/badge/Output-384k-orange?style=flat-square" alt="384k Output"></a>
 </p>
 
@@ -16,20 +16,24 @@
 - 🚀 **超高输出容量**：官方实测支持 **384,000 token 输出**（如 `deepseek-v4.1-flash`），远超一般网关 8k/64k 限制。
 - 🧠 **真实推理强度控制 (Reasoning Effort)**：对齐 models.dev 真实能力，支持 `low` / `medium` / `high` / `max` 灵活切换。
 - 🔒 **安全与零数据驻留 (Zero Data Retention)**：按需支持 `x-cmd-zdr: 1`，避免对无 ZDR 支持模型的错误拦截。
-- 📦 **开箱即用零配置**：内置 14 款高性价比主力模型定义，无需在客户端手动维护繁杂的 JSON 参数。
+- 📦 **开箱即用零配置**：内置精选主力模型定义，无需在客户端手动维护繁杂的 JSON 参数。
+- 🧩 **运行时注册，不写用户配置**：通过 OpenCode V2 官方 `ctx.provider.transform` / `ctx.integration.transform` 在运行时注册 Provider、模型与认证方式，**从不读写 `opencode.json(c)`**，因此不会与任何其他配置写入方（如 OpenChamber）互相覆盖。
 - 🛠️ **多端无缝部署**：支持 GitHub 协议直接引入、一键脚本自动注入与 NPM 包分发。
 
 ---
 
 ## 🚀 跨设备安装与正确配置方案 (Installation & Setup)
 
-### 1. 插件配置（全局 `~/.config/opencode/opencode.json` 或 `opencode.jsonc`）
+### 1. 插件配置（V2 全局 `~/.config/opencode/opencode.jsonc`）
+
+> [!IMPORTANT]
+> V2 的配置键是 **`plugins`（复数）**；V1 的 `plugin` 仅为兼容旧写法。`opencode plugin add` 也会写入该键。
 
 **正确写法（官方推荐，首选）：**
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
+  "plugins": [
     "github:wx2020/opencode-commandcode"
   ]
 }
@@ -38,8 +42,8 @@
 **钉版本（可选，注意缓存目录会带 `#`）：**
 ```jsonc
 {
-  "plugin": [
-    "github:wx2020/opencode-commandcode#v1.0.7"
+  "plugins": [
+    "github:wx2020/opencode-commandcode#v1.3.0"
   ]
 }
 ```
@@ -47,13 +51,14 @@
 > [!CAUTION]
 > **常见错误写法（踩坑预警）：**
 > ```jsonc
-> "plugin": ["opencode-commandcode@github:wx2020/opencode-commandcode#v1.0.7"]  // ✗ 错误写法，请勿添加别名前缀
+> "plugins": ["opencode-commandcode@github:wx2020/opencode-commandcode#v1.3.0"]  // ✗ 错误写法，请勿添加别名前缀
 > ```
 
 **核心要点：**
 - 必须是 **`github:owner/repo`**，不要带 `包名@github:...`；
 - 首选**不带 `#tag`**，少一个带有 `#` 特殊字符的本地缓存路径坑；
-- 严禁使用 `file://` 绕过（确保插件规范化安装与加载）。
+- 严禁使用 `file://` 绕过（确保插件规范化安装与加载）；
+- **不要再把 provider 写进配置**：自 v1.3.0 起 Provider/模型/认证全部在运行时注册，配置里出现 `provider.commandcode` 或 `providers.commandcode` 都属于遗留垃圾，应当删除。
 
 ---
 
@@ -83,9 +88,14 @@
 # 1. 检查插件缓存主包（路径里可能含 #tag）
 ls ~/.cache/opencode/packages/github:wx2020/opencode-commandcode*/node_modules/opencode-commandcode/package.json
 
-# 2. 检查配置与 Provider 是否成功注册
-opencode models commandcode
-# 或通过 HTTP 接口检查 GET /config → 确认 provider.commandcode 及其 18 款模型非空
+# 2. 检查 Provider/模型是否在运行时注册成功
+opencode models | grep commandcode
+
+# 或通过 HTTP 接口核对（V2 二进制）：
+#   MSYS_NO_PATHCONV=1 opencode api GET /api/provider
+
+# 3. 确认配置里没有遗留的 commandcode provider 块
+python -c "import json;d=json.load(open('opencode.jsonc'));print(d.get('provider',{}).keys(), d.get('providers',{}).keys())"
 ```
 
 > [!TIP]
@@ -93,11 +103,13 @@ opencode models commandcode
 
 ---
 
-### 4. 改动插件字段后必须重启客户端
+### 4. 升级插件后必须重启客户端
 
-OpenCode **不热载**全局 config（会无限期内存缓存）。修改 `opencode.json` / `opencode.jsonc` 之后：
-- **OpenChamber 用户**：在 `Settings` 中点击重启 managed OpenCode，或请求 `POST /api/config/reload`（会触发子进程重启）；
-- **独立 OpenCode CLI/TUI 用户**：完全退出终端进程后重新启动。
+OpenCode **不热载**已加载的插件模块（ESM 模块会被进程缓存）。升级 `opencode-commandcode` 版本后：
+- **OpenChamber 用户**：在 `Settings` 中重启 managed OpenCode，或请求 `POST /api/config/reload`（会触发子进程重启）；
+- **独立 OpenCode CLI/TUI 用户**：执行 `opencode service restart`，或完全退出后重新启动。
+
+> 自 v1.3.0 起插件不再读写配置，因此修改 `lib/models.ts` 之外的运行参数无需再动配置文件；只有**升级插件本身**才需要重启。
 
 ---
 
@@ -116,15 +128,17 @@ rm -rf ~/.cache/opencode/packages/github:wx2020
 ### 📌 一句话快速清单
 
 ```text
-plugin: ["github:wx2020/opencode-commandcode"]
-key:    opencode auth login → CommandCode，或 CMD_API_KEY
-然后:   重启 OpenCode / OpenChamber
-验:     /config 或 opencode models commandcode 确认 18 个模型完整加载
+plugins: ["github:wx2020/opencode-commandcode"]
+key:     opencode auth login → CommandCode，或 CMD_API_KEY
+然后:    重启 OpenCode / OpenChamber
+验:      opencode models | grep commandcode（模型由插件在运行时注册）
 ```
 
 ---
 
-## 📋 内置精选主力模型矩阵 (18 Curated Models)
+## 📋 内置精选模型矩阵 (自动同步)
+
+> 模型清单由 `lib/models.ts` 的筛选引擎每日随上游同步（`bun run sync-models`），下表仅示意当前主力阵容，具体成员以 `opencode models` 输出为准。
 
 | 层级分类 | 模型唯一 ID (Model ID) | 显示名称 (Display Name) | 上下文 (Context) | 最大输出容量 (Output) | 支持深度推理 |
 |---|---|---|---|---|:---:|
@@ -161,9 +175,10 @@ opencode-commandcode/
 ├── lib/
 │   ├── constants.ts         # 统一管理 Base URL (https://api.commandcode.ai/provider/v1)、标头与环境变量
 │   ├── types.ts             # 强类型契约 (ModelLimit, Variants 等)
-│   ├── models.ts            # 14 款主力模型规格定义
+│   ├── models.ts            # 精选模型规格定义（每日自动同步）
+│   ├── provider.ts          # GOAT_MODELS → 运行时 Provider.Info / Model.Info 映射（纯函数）
 │   ├── auth.ts              # API Key 解析优先级与交互式认证声明
-│   └── fetch.ts             # 请求中继、URL 动态重写与安全标头注入器
+│   └── fetch.ts             # URL 重写、安全标头注入器（ZDR / stealth 剥离）
 ├── scripts/
 │   ├── build.ts             # Bun 构建与类型生成脚本
 │   ├── install.js           # 跨平台一键部署脚本
@@ -171,10 +186,12 @@ opencode-commandcode/
 │   └── release.ts           # 自动版本递增、测试打包与 GitHub Release 发布脚本
 ├── test/
 │   └── index.test.ts        # 完整单元测试集
-├── index.ts                 # 插件主入口 (Default Export Hooks)
+├── index.ts                 # 插件主入口（V2 setup：provider / integration / model.request hook）
 ├── package.json
 └── tsconfig.json
 ```
+
+> **注册流程**：`setup(ctx)` → `ctx.provider.transform`（注册 Provider + 全量模型）→ `ctx.integration.transform`（注册 key/env 认证方式）→ `ctx.session.hook("model.request")`（ZDR 与 stealth 头部处理）。全程零文件写入，可重复执行且无副作用。
 
 ---
 

@@ -19,7 +19,7 @@ const buildResult = await Bun.build({
   splitting: false,
   sourcemap: "external",
   minify: false,
-  external: ["@opencode-ai/plugin", "@ai-sdk/openai-compatible"],
+  external: ["@opencode/plugin", "@ai-sdk/openai-compatible"],
 });
 
 if (!buildResult.success) {

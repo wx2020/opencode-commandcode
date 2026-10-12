@@ -1,135 +1,71 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
-import {
-  COMMANDCODE_BASE_URL,
-  PLUGIN_ID,
-  PROVIDER_NAME,
-} from "./lib/constants";
-import { GOAT_MODELS } from "./lib/models";
-import type { CommandCodeModelDefinition } from "./lib/types";
+import type { Plugin } from "@opencode/plugin";
+import { AUTH_LABELS, ENV_API_KEYS, PLUGIN_ID, PROVIDER_NAME } from "./lib/constants";
+import { applyCommandCodeRequestHeaders } from "./lib/fetch";
+import { buildModelInfos, buildProviderRuntimeInfo } from "./lib/provider";
 
 export * from "./lib/constants";
 export * from "./lib/types";
 export * from "./lib/models";
 export * from "./lib/auth";
 export * from "./lib/fetch";
+export * from "./lib/provider";
 
 /**
- * OpenCode JSON schema used in the generated config.
+ * Registers CommandCode through the OpenCode V2 plugin API:
+ *
+ * - `ctx.provider.transform` publishes the provider and its full model lineup,
+ *   so the lineup follows `GOAT_MODELS` on every start without reading or
+ *   writing the user's `opencode.json(c)`.
+ * - `ctx.integration.transform` publishes the key and environment auth methods,
+ *   keeping `/connect`, `auth login` and the `CMD_API_KEY` fallback working.
+ *   The stored credential lives in OpenCode's database keyed by
+ *   `integration_id = "commandcode"` and resolves through `integrationID`.
+ * - `ctx.session.hook("model.request", …)` restores the ZDR header injection and
+ *   the stealth-model ZDR opt-out that the V1 fetch wrapper used to provide.
+ *
+ * Everything here is idempotent: transforms are deterministic and no file is
+ * touched, so running setup repeatedly produces no diff.
  */
-export const OPENCODE_SCHEMA = "https://opencode.ai/config.json";
+export const setupCommandCode = async (ctx: Plugin.Context): Promise<void> => {
+  await ctx.provider.transform((editor) => {
+    editor.update(PLUGIN_ID, (provider) => {
+      Object.assign(provider, buildProviderRuntimeInfo());
+    });
+    editor.models.set(PLUGIN_ID, buildModelInfos() as unknown as Parameters<typeof editor.models.set>[1]);
+  });
 
-/**
- * AI SDK package opencode uses to talk to CommandCode's OpenAI-compatible endpoint.
- */
-export const PROVIDER_PACKAGE = "@ai-sdk/openai-compatible";
+  await ctx.integration.transform((editor) => {
+    editor.update(PLUGIN_ID, (integration) => {
+      integration.name = PROVIDER_NAME;
+    });
+    editor.method.update({
+      integrationID: PLUGIN_ID,
+      method: { type: "key", label: AUTH_LABELS.API_KEY },
+    });
+    editor.method.update({
+      integrationID: PLUGIN_ID,
+      method: { type: "env", names: [...ENV_API_KEYS] },
+    });
+  });
 
-/**
- * Config files opencode reads from `~/.config/opencode`, in precedence order.
- */
-export const CONFIG_CANDIDATES = ["opencode.jsonc", "opencode.json", "config.json"] as const;
-
-export type JsonObject = Record<string, unknown>;
-
-/**
- * The `provider.commandcode` block for the opencode config.
- */
-export function buildProviderConfig(
-  models: Record<string, CommandCodeModelDefinition> = GOAT_MODELS,
-): JsonObject {
-  return {
-    name: PROVIDER_NAME,
-    npm: PROVIDER_PACKAGE,
-    options: { baseURL: COMMANDCODE_BASE_URL },
-    models,
-  };
-}
-
-/**
- * Merges the CommandCode provider block into an existing opencode config,
- * preserving every other key (plugin, instructions, other providers, ...).
- */
-export function renderOpencodeConfig(
-  existing: unknown,
-  models: Record<string, CommandCodeModelDefinition> = GOAT_MODELS,
-): JsonObject {
-  const prev = existing && typeof existing === "object" ? (existing as JsonObject) : {};
-  const next: JsonObject = { $schema: (prev.$schema as string) ?? OPENCODE_SCHEMA };
-
-  for (const [key, value] of Object.entries(prev)) {
-    if (key === "$schema" || key === "provider") continue;
-    next[key] = value;
-  }
-
-  const providers = { ...((prev.provider as JsonObject) ?? {}) };
-  providers[PLUGIN_ID] = buildProviderConfig(models);
-  next.provider = providers;
-
-  return next;
-}
-
-/**
- * Resolves the opencode config file to write, preferring one that already exists.
- */
-export function resolveConfigPath(): string {
-  const dir = join(homedir(), ".config", "opencode");
-  for (const name of CONFIG_CANDIDATES) {
-    const candidate = join(dir, name);
-    if (existsSync(candidate)) return candidate;
-  }
-  return join(dir, "opencode.jsonc");
-}
-
-/**
- * Regenerates the `provider.commandcode.models` block from GOAT_MODELS and writes
- * it back to the opencode config, but only when the content actually changed
- * (so it never fights the config file watcher).
- */
-export function syncOpencodeConfig(
-  models: Record<string, CommandCodeModelDefinition> = GOAT_MODELS,
-): { path: string; changed: boolean } {
-  const path = resolveConfigPath();
-  let existing: unknown = {};
-
-  if (existsSync(path)) {
-    const raw = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
-    try {
-      existing = JSON.parse(raw);
-    } catch {
-      // Config is JSONC (comments) or otherwise unparseable: never overwrite it.
-      return { path, changed: false };
-    }
-  }
-
-  const text = `${JSON.stringify(renderOpencodeConfig(existing, models), null, 2)}\n`;
-  const current = existsSync(path) ? readFileSync(path, "utf8") : "";
-  const changed = current !== text;
-
-  if (changed) {
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, text);
-  }
-
-  return { path, changed };
-}
+  await ctx.session.hook(
+    "model.request",
+    (event) => {
+      applyCommandCodeRequestHeaders(event.headers, event.model.id);
+    },
+    { providerID: PLUGIN_ID },
+  );
+};
 
 /**
  * CommandCode Provider Plugin for OpenCode.
  *
- * opencode declares providers from config only, so on every start the plugin
- * regenerates `provider.commandcode.models` in the opencode config from
- * GOAT_MODELS. Model lineup updates therefore propagate on the next start.
+ * Registers the provider at runtime instead of writing it into the user
+ * config, so it can no longer collide with another config writer.
  */
-export const CommandCodePlugin = {
+export const CommandCodePlugin: Plugin.Plugin = {
   id: PLUGIN_ID,
-  setup: async (): Promise<void> => {
-    try {
-      syncOpencodeConfig();
-    } catch {
-      // Best effort: a failed sync must never break opencode startup.
-    }
-  },
+  setup: setupCommandCode,
 };
 
 export default CommandCodePlugin;

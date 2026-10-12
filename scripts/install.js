@@ -31,7 +31,7 @@ function findOrCreateConfigFile() {
   const initialContent = JSON.stringify(
     {
       $schema: "https://opencode.ai/config.json",
-      plugin: [PLUGIN_IDENTIFIER],
+      plugins: [PLUGIN_IDENTIFIER],
     },
     null,
     2
@@ -66,10 +66,12 @@ function install() {
       return;
     }
     // Fallback regex insertion
-    if (content.includes('"plugin"')) {
+    if (content.includes('"plugins"')) {
+      content = content.replace(/"plugins"\s*:\s*\[/, `"plugins": [\n    "${PLUGIN_IDENTIFIER}",`);
+    } else if (content.includes('"plugin"')) {
       content = content.replace(/"plugin"\s*:\s*\[/, `"plugin": [\n    "${PLUGIN_IDENTIFIER}",`);
     } else {
-      content = content.replace(/\{/, `{\n  "plugin": ["${PLUGIN_IDENTIFIER}"],`);
+      content = content.replace(/\{/, `{\n  "plugins": ["${PLUGIN_IDENTIFIER}"],`);
     }
     fs.writeFileSync(configFilePath, content, "utf8");
     console.log("✅ Successfully injected opencode-commandcode into configuration!");
@@ -78,15 +80,16 @@ function install() {
   }
 
   // Object manipulation
-  configObj.plugin = configObj.plugin || [];
-  const alreadyInstalled = configObj.plugin.some(
+  configObj.plugins = configObj.plugins || configObj.plugin || [];
+  const alreadyInstalled = configObj.plugins.some(
     (p) => typeof p === "string" && (p.includes("opencode-commandcode") || p === PLUGIN_IDENTIFIER)
   );
 
   if (alreadyInstalled) {
     console.log("✅ opencode-commandcode is already registered in your configuration!");
   } else {
-    configObj.plugin.push(PLUGIN_IDENTIFIER);
+    configObj.plugins.push(PLUGIN_IDENTIFIER);
+    delete configObj.plugin;
     fs.writeFileSync(configFilePath, JSON.stringify(configObj, null, 2), "utf8");
     console.log("✅ Successfully added opencode-commandcode to your plugin list!");
   }

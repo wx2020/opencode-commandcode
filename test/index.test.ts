@@ -5,12 +5,16 @@ import {
   GOAT_MODELS,
   rewriteUrlForCommandCode,
   createCommandCodeHeaders,
+  applyCommandCodeRequestHeaders,
   resolveApiKey,
   isStealthModel,
   extractRequestModel,
   CommandCodePlugin,
-  buildProviderConfig,
-  renderOpencodeConfig,
+  setupCommandCode,
+  buildProviderRuntimeInfo,
+  buildModelInfos,
+  toModelInfo,
+  PROVIDER_PACKAGE,
   PROVIDER_NAME,
 } from "../index";
 import {
@@ -222,45 +226,176 @@ describe("CommandCode OpenCode Plugin", () => {
   });
   });
 
-  describe("Config Generation", () => {
+  describe("Runtime Provider Registration", () => {
     test("module exports the v2 { id, setup } shape", () => {
       expect(CommandCodePlugin.id).toBe(PLUGIN_ID);
       expect(typeof CommandCodePlugin.setup).toBe("function");
+      expect(typeof setupCommandCode).toBe("function");
     });
 
-    test("buildProviderConfig targets the CommandCode base URL with all models", () => {
-      const provider = buildProviderConfig();
-      expect(provider.name).toBe(PROVIDER_NAME);
-      expect(provider.npm).toBe("@ai-sdk/openai-compatible");
-      expect((provider.options as any).baseURL).toBe(COMMANDCODE_BASE_URL);
-      expect(Object.keys(provider.models as any).length).toBe(Object.keys(GOAT_MODELS).length);
+    test("provider info registers the CommandCode endpoint and integration", () => {
+      const info = buildProviderRuntimeInfo();
+      expect(info.id).toBe(PLUGIN_ID);
+      expect(info.name).toBe(PROVIDER_NAME);
+      expect(info.activation).toBe("enabled");
+      expect(info.package).toBe(PROVIDER_PACKAGE);
+      expect(info.integrationID).toBe(PLUGIN_ID);
+      expect(info.settings.baseURL).toBe(COMMANDCODE_BASE_URL);
     });
 
-    test("renderOpencodeConfig preserves unrelated keys and injects the provider", () => {
-      const existing = {
-        $schema: "custom",
-        instructions: ["AGENTS.md"],
-        plugin: ["some-plugin"],
-        provider: { other: { name: "Other" } },
+    test("every GOAT model maps to a complete V2 model definition", () => {
+      const models = buildModelInfos();
+      expect(models.length).toBe(Object.keys(GOAT_MODELS).length);
+
+      for (const model of models) {
+        expect(model.id).toBe(model.modelID);
+        expect(model.providerID).toBe(PLUGIN_ID);
+        expect(model.name.trim().length).toBeGreaterThan(0);
+        expect(model.capabilities.tools).toBe(true);
+        expect(model.capabilities.input.length).toBeGreaterThan(0);
+        expect(model.capabilities.output.length).toBeGreaterThan(0);
+        expect(model.cost).toHaveLength(1);
+        expect(model.cost[0].input).toBeGreaterThanOrEqual(0);
+        expect(model.cost[0].output).toBeGreaterThanOrEqual(0);
+        expect(model.cost[0].cache.read).toBeGreaterThanOrEqual(0);
+        expect(model.cost[0].cache.write).toBeGreaterThanOrEqual(0);
+        expect(model.limit.context).toBeGreaterThan(0);
+        expect(model.limit.output).toBeGreaterThan(0);
+        expect(model.status).toBe("active");
+        expect(model.enabled).toBe(true);
+        expect(Array.isArray(model.variants)).toBe(true);
+        expect(model.time.released).toBe(0);
+
+        // Legacy V1 fields must not leak into the runtime definition.
+        expect(model as unknown as Record<string, unknown>).not.toHaveProperty("reasoning");
+        expect(model as unknown as Record<string, unknown>).not.toHaveProperty("modalities");
+        expect(model as unknown as Record<string, unknown>).not.toHaveProperty("interleaved");
+      }
+    });
+
+    test("maps interleaved, variants and cost cache into the V2 fields", () => {
+      const source = GOAT_MODELS["stealth/pixel-canary"];
+      const model = toModelInfo("stealth/pixel-canary", source);
+
+      expect(model.compatibility).toEqual({ reasoningField: source.interleaved!.field });
+      expect(model.variants.map((variant) => variant.id)).toEqual(Object.keys(source.variants!));
+      expect(model.variants[0].settings).toEqual(source.variants!.low);
+      expect(model.cost[0].cache.read).toBe(source.cost.cache_read ?? 0);
+      expect(model.cost[0].cache.write).toBe(source.cost.cache_write ?? 0);
+      expect(model.capabilities.input).toEqual(source.modalities.input);
+      expect(model.limit).toEqual({
+        context: source.limit.context,
+        output: source.limit.output,
+      });
+    });
+
+    test("reasoning models without explicit variants get an empty variant list", () => {
+      const model = toModelInfo("stealth/glyph-cluster:free", GOAT_MODELS["stealth/glyph-cluster:free"]);
+      expect(model.variants).toEqual([]);
+      expect(model.compatibility).toEqual({ reasoningField: "reasoning_content" });
+    });
+
+    test("builders are deterministic, so re-registering produces no diff", () => {
+      expect(JSON.stringify(buildModelInfos())).toBe(JSON.stringify(buildModelInfos()));
+      expect(buildProviderRuntimeInfo()).toEqual(buildProviderRuntimeInfo());
+    });
+
+    test("setup registers provider, integration and request hook without touching config files", async () => {
+      const providerTransforms: Array<(editor: any) => void> = [];
+      const integrationTransforms: Array<(editor: any) => void> = [];
+      const hooks: Array<{ name: string; callback: (event: any) => void; options?: any }> = [];
+
+      const ctx = {
+        provider: {
+          transform: async (callback: (editor: any) => void) => {
+            providerTransforms.push(callback);
+          },
+        },
+        integration: {
+          transform: async (callback: (editor: any) => void) => {
+            integrationTransforms.push(callback);
+          },
+        },
+        session: {
+          hook: async (name: string, callback: (event: any) => void, options?: any) => {
+            hooks.push({ name, callback, options });
+          },
+        },
       };
-      const next = renderOpencodeConfig(existing, {
-        "m/1": GOAT_MODELS["deepseek/deepseek-v4.1-flash"],
+
+      await setupCommandCode(ctx as any);
+
+      expect(providerTransforms).toHaveLength(1);
+      expect(integrationTransforms).toHaveLength(1);
+      expect(hooks).toHaveLength(1);
+
+      const providerUpdates: Array<{ id: string; provider: any }> = [];
+      const modelSets: Array<{ id: string; models: any[] }> = [];
+      providerTransforms[0]({
+        update: (id: string, update: (provider: any) => void) => {
+          const provider: any = {};
+          update(provider);
+          providerUpdates.push({ id, provider });
+        },
+        models: {
+          set: (id: string, models: any[]) => {
+            modelSets.push({ id, models });
+          },
+        },
       });
 
-      expect(next.$schema).toBe("custom");
-      expect(next.instructions).toEqual(["AGENTS.md"]);
-      expect(next.plugin).toEqual(["some-plugin"]);
+      expect(providerUpdates).toHaveLength(1);
+      expect(providerUpdates[0].id).toBe(PLUGIN_ID);
+      expect(providerUpdates[0].provider.package).toBe(PROVIDER_PACKAGE);
+      expect(providerUpdates[0].provider.settings.baseURL).toBe(COMMANDCODE_BASE_URL);
+      expect(providerUpdates[0].provider.activation).toBe("enabled");
+      expect(modelSets).toHaveLength(1);
+      expect(modelSets[0].id).toBe(PLUGIN_ID);
+      expect(modelSets[0].models).toHaveLength(Object.keys(GOAT_MODELS).length);
 
-      const providers = next.provider as any;
-      expect(providers.other.name).toBe("Other");
-      expect(providers.commandcode.name).toBe(PROVIDER_NAME);
-      expect(Object.keys(providers.commandcode.models)).toEqual(["m/1"]);
+      const methodUpdates: any[] = [];
+      integrationTransforms[0]({
+        update: (id: string, update: (integration: any) => void) => {
+          const integration: any = {};
+          update(integration);
+          expect(id).toBe(PLUGIN_ID);
+          expect(integration.name).toBe(PROVIDER_NAME);
+        },
+        method: {
+          update: (input: any) => {
+            methodUpdates.push(input);
+          },
+        },
+      });
+
+      expect(methodUpdates.map((input) => input.method.type).sort()).toEqual(["env", "key"]);
+      expect(methodUpdates.find((input) => input.method.type === "env").method.names).toEqual([
+        "CMD_API_KEY",
+        "COMMANDCODE_API_KEY",
+      ]);
+
+      const hook = hooks[0];
+      expect(hook.name).toBe("model.request");
+      expect(hook.options).toEqual({ providerID: PLUGIN_ID });
     });
 
-    test("renderOpencodeConfig is deterministic for stable output", () => {
-      const a = renderOpencodeConfig({ plugin: ["p"] });
-      const b = renderOpencodeConfig({ plugin: ["p"] });
-      expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+    test("request hook enables ZDR for normal models and strips it for stealth", () => {
+      const headers: Record<string, string> = {};
+      applyCommandCodeRequestHeaders(headers, "z-ai/glm-5.3-flash");
+      expect(headers["x-cmd-zdr"]).toBeUndefined();
+
+      process.env.CMD_ZDR = "1";
+      try {
+        const normal: Record<string, string> = {};
+        applyCommandCodeRequestHeaders(normal, "z-ai/glm-5.3-flash");
+        expect(normal["x-cmd-zdr"]).toBe("1");
+
+        const stealth: Record<string, string> = { "x-cmd-zdr": "1" };
+        applyCommandCodeRequestHeaders(stealth, "stealth/space-bunny-alpha");
+        expect(stealth["x-cmd-zdr"]).toBeUndefined();
+      } finally {
+        delete process.env.CMD_ZDR;
+      }
     });
   });
 });
