@@ -123,8 +123,13 @@ export async function runRelease(options: {
     notes += `- 🎁 **Standardized Free Tier Badging**: Strictly labeled zero-cost models as \`(Free)\` (\`Laguna S 2.1 (Free)\` & \`Ling 3.0 Flash Sante (Free)\`).\n`;
     notes += `- 🎯 **Dynamic Lineup**: Maintained 18 curated high-capacity flagship, free, and cross-provider models with generation quota inversion handling.\n`;
   }
-  notes += `\n### 📦 Quick Start\n`;
-  notes += `\`\`\`jsonc\n{\n  "plugin": ["github:wx2020/opencode-commandcode#${newTag}"]\n}\n\`\`\`\n`;
+  notes += `\n### 📦 Installation\n`;
+  notes += `**方案 A（推荐，跨平台）**：克隆仓库后把**绝对路径**写进全局配置 \`plugins\`：\n`;
+  notes += `\`\`\`bash\ngit clone https://github.com/wx2020/opencode-commandcode.git ~/opencode-commandcode\n\`\`\`\n`;
+  notes += `\`\`\`jsonc\n{\n  "$schema": "https://opencode.ai/config.json",\n  "plugins": ["/home/you/opencode-commandcode"]\n}\n\`\`\`\n`;
+  notes += `**方案 B**：把 \`dist/ lib/ index.ts package.json\` 拷到 \`~/.config/opencode/node_modules/opencode-commandcode/\`，并在 \`~/.config/opencode/plugins/commandcode.ts\` 写 \`import plugin from "opencode-commandcode"; export default plugin;\`。\n`;
+  notes += `\n> ⚠️ \`github:\` 规格目前在 **Windows** 上装不上（OpenCode 侧 bug：pacote 准备 git 依赖时无法 spawn \`npm\`/\`npm.cmd\`），\`opencode plugin add github:...\` 会报 \`git dep preparation failed\`。请使用方案 A/B。\n`;
+  notes += `\n随后 \`opencode auth login\`（选择 CommandCode）或设置 \`CMD_API_KEY\`，最后重启 OpenCode / OpenChamber；用 \`opencode models | grep commandcode\` 校验。\n`;
 
   const notesPath = join(rootDir, "RELEASE_NOTES.tmp.md");
   writeFileSync(notesPath, notes, "utf8");
