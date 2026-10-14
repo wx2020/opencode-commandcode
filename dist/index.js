@@ -110,6 +110,45 @@ function createCommandCodeFetch(getAuth, fallbackApiKey) {
   };
 }
 
+// lib/retry.ts
+var DEFAULT_RETRY_MAX_ATTEMPTS = 3;
+var DEFAULT_RETRY_DELAY_MS = 800;
+function isTransientGatewayError(error) {
+  if (!error || typeof error !== "object")
+    return false;
+  const err = error;
+  const status = Number(err.status ?? err.statusCode);
+  if (status !== 400)
+    return false;
+  const blob = [err.type, err.message, err.response?.body].map((value) => typeof value === "string" ? value : "").join(" ");
+  return /invalid[ _-]?request/i.test(blob);
+}
+function parseMaxAttempts(raw) {
+  const value = Number(raw);
+  if (!Number.isFinite(value))
+    return DEFAULT_RETRY_MAX_ATTEMPTS;
+  const int = Math.floor(value);
+  if (int < 1 || int > 5)
+    return DEFAULT_RETRY_MAX_ATTEMPTS;
+  return int;
+}
+function parseRetryDelayMs(raw) {
+  const value = Number(raw);
+  if (!Number.isFinite(value))
+    return DEFAULT_RETRY_DELAY_MS;
+  const int = Math.floor(value);
+  if (int < 0 || int > 1e4)
+    return DEFAULT_RETRY_DELAY_MS;
+  return int;
+}
+function retryDecisionFor(error, attempt, maxAttempts = DEFAULT_RETRY_MAX_ATTEMPTS, delayMs = DEFAULT_RETRY_DELAY_MS) {
+  if (!isTransientGatewayError(error))
+    return null;
+  if (!(Number(attempt) < maxAttempts))
+    return null;
+  return { retry: true, delay: delayMs };
+}
+
 // lib/models.ts
 var GOAT_MODELS = {
   "deepseek/deepseek-v4.1-flash": {
@@ -947,22 +986,35 @@ var setupCommandCode = async (ctx) => {
   await ctx.session.hook("model.request", (event) => {
     applyCommandCodeRequestHeaders(event.headers, event.model.id);
   }, { providerID: PLUGIN_ID });
+  const maxAttempts = parseMaxAttempts(process.env.CMD_RETRY_MAX_ATTEMPTS);
+  const delayMs = parseRetryDelayMs(process.env.CMD_RETRY_DELAY_MS);
+  if (process.env.CMD_RETRY !== "0" && maxAttempts > 1) {
+    await ctx.session.hook("retry", (event) => {
+      const decision = retryDecisionFor(event.error, event.attempt, maxAttempts, delayMs);
+      if (decision)
+        event.decision = decision;
+    }, { providerID: PLUGIN_ID });
+  }
 };
 var CommandCodePlugin = {
   id: PLUGIN_ID,
   setup: setupCommandCode
 };
-var opencode_commandcode_default = CommandCodePlugin;
+var cc_fix_default = CommandCodePlugin;
 export {
   toModelInfo,
   shouldEnableZdr,
   setupCommandCode,
   rewriteUrlForCommandCode,
+  retryDecisionFor,
   resolveApiKey,
+  parseRetryDelayMs,
+  parseMaxAttempts,
+  isTransientGatewayError,
   isStealthModel,
   isApiKeyValid,
   extractRequestModel,
-  opencode_commandcode_default as default,
+  cc_fix_default as default,
   createCommandCodeHeaders,
   createCommandCodeFetch,
   buildProviderRuntimeInfo,
@@ -977,6 +1029,8 @@ export {
   ENV_ZDR_KEYS,
   ENV_API_KEYS,
   DUMMY_API_KEY,
+  DEFAULT_RETRY_MAX_ATTEMPTS,
+  DEFAULT_RETRY_DELAY_MS,
   CommandCodePlugin,
   COMMANDCODE_RESPONSES_ENDPOINT,
   COMMANDCODE_MODELS_ENDPOINT,
@@ -986,4 +1040,4 @@ export {
   AUTH_LABELS
 };
 
-//# debugId=BED1225C41B69EA164756E2164756E21
+//# debugId=A7B543E47A356AE564756E2164756E21
