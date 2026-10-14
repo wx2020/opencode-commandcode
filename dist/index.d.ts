@@ -5,6 +5,7 @@ export * from "./lib/models";
 export * from "./lib/auth";
 export * from "./lib/fetch";
 export * from "./lib/provider";
+export * from "./lib/retry";
 /**
  * Registers CommandCode through the OpenCode V2 plugin API:
  *

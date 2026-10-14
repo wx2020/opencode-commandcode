@@ -195,6 +195,22 @@ opencode-commandcode/
 
 ---
 
+## 🛡️ 上游瞬时 400 的自动重试（稳定性）
+
+`api.commandcode.ai` 偶发返回 `HTTP 400 {"type":"invalid_request_error"}`：网关把上游（模型后端）的错误原样包了一层，`trace_id` 即响应头 `x-trace-id`。
+
+实测定性（2026-10-14）：这与请求体积/形态**无关**——375k tokens、3MB body、流式、tools、`x-cmd-zdr` 全部返回 200；210k tokens 连发 8/8 不复现；而**同一时刻两个不同会话会一起失败** ⇒ 站方瞬时时序故障。
+
+危害在于放大：OpenCode 默认**不重试 400** ⇒ 该轮以 `finish:"error"` 结束；在 OpenChamber 的 Goal 模式下更会被判 `blocked`，自动运行就此终止。
+
+插件用 OpenCode V2 官方钩子 `ctx.session.hook("retry")`，**只对这类错误**给出重试决策（其它 400 / 429 / 5xx 一律不干预，交给客户端自身的重试策略）：
+
+| 环境变量 | 默认 | 说明 |
+|---|---|---|
+| `CMD_RETRY` | `1` | 置 `0` 关闭该重试 |
+| `CMD_RETRY_MAX_ATTEMPTS` | `3` | 最多尝试次数（含首次，1–5） |
+| `CMD_RETRY_DELAY_MS` | `800` | 重试前等待毫秒（0–10000） |
+
 ## 🤖 自动化模型同步与发版机制 (Continuous Sync & Release)
 
 本项目配置了端到端的 **模型自动探测与版本自动发布流水线**（GitHub Actions [`.github/workflows/auto-release.yml`](.github/workflows/auto-release.yml)）：

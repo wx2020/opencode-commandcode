@@ -16,6 +16,12 @@ import {
   toModelInfo,
   PROVIDER_PACKAGE,
   PROVIDER_NAME,
+  isTransientGatewayError,
+  retryDecisionFor,
+  parseMaxAttempts,
+  parseRetryDelayMs,
+  DEFAULT_RETRY_DELAY_MS,
+  DEFAULT_RETRY_MAX_ATTEMPTS,
 } from "../index";
 import {
   FAMILY_BASE_QUOTAS,
@@ -327,7 +333,9 @@ describe("CommandCode OpenCode Plugin", () => {
 
       expect(providerTransforms).toHaveLength(1);
       expect(integrationTransforms).toHaveLength(1);
-      expect(hooks).toHaveLength(1);
+      expect(hooks).toHaveLength(2);
+      expect(hooks.map((entry) => entry.name).sort()).toEqual(["model.request", "retry"]);
+      expect(hooks.find((entry) => entry.name === "retry")?.options?.providerID).toBe(PLUGIN_ID);
 
       const providerUpdates: Array<{ id: string; provider: any }> = [];
       const modelSets: Array<{ id: string; models: any[] }> = [];
@@ -400,3 +408,58 @@ describe("CommandCode OpenCode Plugin", () => {
   });
 });
 
+
+describe("Transient gateway 400 retry policy", () => {
+  const gatewayError = {
+    type: "provider.invalid-request",
+    status: 400,
+    message: '{"message":"invalid request error trace_id: abc","type":"invalid_request_error"}',
+    response: { body: '{"error":{"message":"invalid request error trace_id: abc"}}' },
+  };
+
+  test("detects the wrapped gateway invalid-request error", () => {
+    expect(isTransientGatewayError(gatewayError)).toBe(true);
+    expect(isTransientGatewayError({ status: 400, message: '{"type":"invalid_request_error"}' })).toBe(true);
+  });
+
+  test("ignores other 400s and non-400 statuses", () => {
+    expect(isTransientGatewayError({ status: 400, message: "bad parameter" })).toBe(false);
+    expect(isTransientGatewayError({ status: 422, message: "invalid request error" })).toBe(false);
+    expect(isTransientGatewayError({ status: 503, message: "invalid request error" })).toBe(false);
+    expect(isTransientGatewayError(undefined)).toBe(false);
+  });
+
+  test("retries the transient 400 until the attempt cap", () => {
+    expect(retryDecisionFor(gatewayError, 1)).toEqual({ retry: true, delay: DEFAULT_RETRY_DELAY_MS });
+    expect(retryDecisionFor(gatewayError, 2, 3, 10)).toEqual({ retry: true, delay: 10 });
+    expect(retryDecisionFor(gatewayError, 3)).toBeNull();
+  });
+
+  test("does not retry other errors", () => {
+    expect(retryDecisionFor({ status: 400, message: "nope" }, 1)).toBeNull();
+    expect(retryDecisionFor({ status: 429, message: "rate limited" }, 1)).toBeNull();
+  });
+
+  test("env parsing falls back safely", () => {
+    expect(parseMaxAttempts(undefined)).toBe(DEFAULT_RETRY_MAX_ATTEMPTS);
+    expect(parseMaxAttempts("2")).toBe(2);
+    expect(parseMaxAttempts("99")).toBe(DEFAULT_RETRY_MAX_ATTEMPTS);
+    expect(parseRetryDelayMs(undefined)).toBe(DEFAULT_RETRY_DELAY_MS);
+    expect(parseRetryDelayMs("0")).toBe(0);
+    expect(parseRetryDelayMs("-5")).toBe(DEFAULT_RETRY_DELAY_MS);
+  });
+
+  test("setup registers a retry hook scoped to the provider", async () => {
+    const hooks: Record<string, { callback: (input: any) => void; options?: { providerID?: string } }> = {};
+    const ctx: any = {
+      provider: { transform: async () => {} },
+      integration: { transform: async () => {}, method: { update: async () => {} } },
+      session: { hook: async (name: string, callback: any, options: any) => { hooks[name] = { callback, options }; } },
+    };
+    await setupCommandCode(ctx);
+    expect(hooks.retry?.options?.providerID).toBe(PLUGIN_ID);
+    const event: any = { attempt: 1, error: gatewayError, decision: { retry: false } };
+    hooks.retry.callback(event);
+    expect(event.decision).toEqual({ retry: true, delay: DEFAULT_RETRY_DELAY_MS });
+  });
+});

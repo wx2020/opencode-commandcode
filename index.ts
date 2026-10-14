@@ -1,6 +1,7 @@
 import type { Plugin } from "@opencode/plugin";
 import { AUTH_LABELS, ENV_API_KEYS, PLUGIN_ID, PROVIDER_NAME } from "./lib/constants";
 import { applyCommandCodeRequestHeaders } from "./lib/fetch";
+import { parseMaxAttempts, parseRetryDelayMs, retryDecisionFor } from "./lib/retry";
 import { buildModelInfos, buildProviderRuntimeInfo } from "./lib/provider";
 
 export * from "./lib/constants";
@@ -9,6 +10,7 @@ export * from "./lib/models";
 export * from "./lib/auth";
 export * from "./lib/fetch";
 export * from "./lib/provider";
+export * from "./lib/retry";
 
 /**
  * Registers CommandCode through the OpenCode V2 plugin API:
@@ -55,6 +57,21 @@ export const setupCommandCode = async (ctx: Plugin.Context): Promise<void> => {
     },
     { providerID: PLUGIN_ID },
   );
+
+  // 上游网关偶发 HTTP 400 invalid_request_error 属瞬时时序故障（见 lib/retry.ts），
+  // 默认不重试会让整轮对话失败、让 Goal 判 blocked。这里只对该特征给出重试决策。
+  const maxAttempts = parseMaxAttempts(process.env.CMD_RETRY_MAX_ATTEMPTS);
+  const delayMs = parseRetryDelayMs(process.env.CMD_RETRY_DELAY_MS);
+  if (process.env.CMD_RETRY !== "0" && maxAttempts > 1) {
+    await ctx.session.hook(
+      "retry",
+      (event: { error: unknown; attempt: number; decision: { retry: boolean; delay: number } }) => {
+        const decision = retryDecisionFor(event.error, event.attempt, maxAttempts, delayMs);
+        if (decision) event.decision = decision;
+      },
+      { providerID: PLUGIN_ID },
+    );
+  }
 };
 
 /**
