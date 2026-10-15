@@ -429,6 +429,44 @@ var GOAT_MODELS = {
       }
     }
   },
+  "Qwen/Qwen3.8-Max-Prime": {
+    name: "Qwen 3.8 Max Prime",
+    limit: {
+      context: 1e6,
+      output: 131072
+    },
+    cost: {
+      input: 0.5714,
+      output: 1.7143,
+      cache_read: 0.0714,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text",
+        "image",
+        "video"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      }
+    }
+  },
   "Qwen/Qwen3.8-Omni-Flash": {
     name: "Qwen 3.8 Omni Flash",
     limit: {
@@ -817,8 +855,7 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio",
-        "pdf"
+        "audio"
       ],
       output: [
         "text"
@@ -1000,44 +1037,44 @@ var CommandCodePlugin = {
   id: PLUGIN_ID,
   setup: setupCommandCode
 };
-var cc_fix_default = CommandCodePlugin;
+var opencode_commandcode_default = CommandCodePlugin;
 export {
-  toModelInfo,
-  shouldEnableZdr,
-  setupCommandCode,
-  rewriteUrlForCommandCode,
-  retryDecisionFor,
-  resolveApiKey,
-  parseRetryDelayMs,
-  parseMaxAttempts,
-  isTransientGatewayError,
-  isStealthModel,
-  isApiKeyValid,
-  extractRequestModel,
-  cc_fix_default as default,
-  createCommandCodeHeaders,
-  createCommandCodeFetch,
-  buildProviderRuntimeInfo,
-  buildModelInfos,
-  applyCommandCodeRequestHeaders,
-  ZERO_DATA_RETENTION_VALUE,
-  PROVIDER_PACKAGE,
-  PROVIDER_NAME,
-  PLUGIN_ID,
-  HEADERS,
-  GOAT_MODELS,
-  ENV_ZDR_KEYS,
-  ENV_API_KEYS,
-  DUMMY_API_KEY,
-  DEFAULT_RETRY_MAX_ATTEMPTS,
-  DEFAULT_RETRY_DELAY_MS,
-  CommandCodePlugin,
-  COMMANDCODE_RESPONSES_ENDPOINT,
-  COMMANDCODE_MODELS_ENDPOINT,
-  COMMANDCODE_CHAT_ENDPOINT,
-  COMMANDCODE_BASE_URL,
+  AUTH_LABELS,
   AUTH_METHODS,
-  AUTH_LABELS
+  COMMANDCODE_BASE_URL,
+  COMMANDCODE_CHAT_ENDPOINT,
+  COMMANDCODE_MODELS_ENDPOINT,
+  COMMANDCODE_RESPONSES_ENDPOINT,
+  CommandCodePlugin,
+  DEFAULT_RETRY_DELAY_MS,
+  DEFAULT_RETRY_MAX_ATTEMPTS,
+  DUMMY_API_KEY,
+  ENV_API_KEYS,
+  ENV_ZDR_KEYS,
+  GOAT_MODELS,
+  HEADERS,
+  PLUGIN_ID,
+  PROVIDER_NAME,
+  PROVIDER_PACKAGE,
+  ZERO_DATA_RETENTION_VALUE,
+  applyCommandCodeRequestHeaders,
+  buildModelInfos,
+  buildProviderRuntimeInfo,
+  createCommandCodeFetch,
+  createCommandCodeHeaders,
+  opencode_commandcode_default as default,
+  extractRequestModel,
+  isApiKeyValid,
+  isStealthModel,
+  isTransientGatewayError,
+  parseMaxAttempts,
+  parseRetryDelayMs,
+  resolveApiKey,
+  retryDecisionFor,
+  rewriteUrlForCommandCode,
+  setupCommandCode,
+  shouldEnableZdr,
+  toModelInfo
 };
 
-//# debugId=A7B543E47A356AE564756E2164756E21
+//# debugId=5394308B1B23AA4564756E2164756E21

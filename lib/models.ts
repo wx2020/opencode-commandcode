@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-08T13:19:21.814Z
+ * Last updated: 2026-10-15T02:34:04.957Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -282,6 +282,44 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       },
       "max": {
         "reasoningEffort": "max"
+      }
+    }
+  },
+  "Qwen/Qwen3.8-Max-Prime": {
+    "name": "Qwen 3.8 Max Prime",
+    "limit": {
+      "context": 1000000,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0.5714,
+      "output": 1.7143,
+      "cache_read": 0.0714,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
       }
     }
   },
@@ -673,8 +711,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio",
-        "pdf"
+        "audio"
       ],
       "output": [
         "text"
