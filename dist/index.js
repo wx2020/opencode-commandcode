@@ -800,6 +800,31 @@ var GOAT_MODELS = {
       field: "reasoning_content"
     }
   },
+  "stealth/cat-jam:free": {
+    name: "Cat Jam (Free)",
+    limit: {
+      context: 1048576,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     name: "Kimi K2.7 Code",
     limit: {
@@ -1077,4 +1102,4 @@ export {
   toModelInfo
 };
 
-//# debugId=5394308B1B23AA4564756E2164756E21
+//# debugId=D1AD76F2D315B2CA64756E2164756E21

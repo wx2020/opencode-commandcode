@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-15T02:34:04.957Z
+ * Last updated: 2026-10-16T02:28:59.111Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -635,6 +635,31 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Ling 3.1 Flash (Free)",
     "limit": {
       "context": 262144,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    }
+  },
+  "stealth/cat-jam:free": {
+    "name": "Cat Jam (Free)",
+    "limit": {
+      "context": 1048576,
       "output": 131072
     },
     "cost": {
