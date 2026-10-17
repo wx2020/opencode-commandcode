@@ -296,7 +296,7 @@ var GOAT_MODELS = {
     name: "Tencent Hy3",
     limit: {
       context: 262144,
-      output: 131072
+      output: 128000
     },
     cost: {
       input: 0.0143,
@@ -779,7 +779,7 @@ var GOAT_MODELS = {
     name: "Ling 3.1 Flash (Free)",
     limit: {
       context: 262144,
-      output: 131072
+      output: 32768
     },
     cost: {
       input: 0,
@@ -798,6 +798,17 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      }
     }
   },
   "stealth/cat-jam:free": {
@@ -824,6 +835,28 @@ var GOAT_MODELS = {
     interleaved: {
       field: "reasoning_content"
     }
+  },
+  "reflection/beam:free": {
+    name: "Beam 1.0 (Free)",
+    limit: {
+      context: 1048576,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: false
   },
   "moonshotai/Kimi-K2.7-Code": {
     name: "Kimi K2.7 Code",
@@ -1102,4 +1135,4 @@ export {
   toModelInfo
 };
 
-//# debugId=D1AD76F2D315B2CA64756E2164756E21
+//# debugId=75A5A1BC4C7C355A64756E2164756E21

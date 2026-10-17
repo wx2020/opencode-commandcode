@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-16T02:28:59.111Z
+ * Last updated: 2026-10-17T02:22:00.150Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -152,7 +152,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Tencent Hy3",
     "limit": {
       "context": 262144,
-      "output": 131072
+      "output": 128000
     },
     "cost": {
       "input": 0.0143,
@@ -635,7 +635,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Ling 3.1 Flash (Free)",
     "limit": {
       "context": 262144,
-      "output": 131072
+      "output": 32768
     },
     "cost": {
       "input": 0,
@@ -654,6 +654,17 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "reasoning": true,
     "interleaved": {
       "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
+      }
     }
   },
   "stealth/cat-jam:free": {
@@ -680,6 +691,28 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "interleaved": {
       "field": "reasoning_content"
     }
+  },
+  "reflection/beam:free": {
+    "name": "Beam 1.0 (Free)",
+    "limit": {
+      "context": 1048576,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": false
   },
   "moonshotai/Kimi-K2.7-Code": {
     "name": "Kimi K2.7 Code",
