@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-17T02:22:00.150Z
+ * Last updated: 2026-10-19T02:36:23.458Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -103,7 +103,6 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio",
         "pdf"
       ],
       "output": [
@@ -123,6 +122,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       },
       "high": {
         "reasoningEffort": "high"
+      },
+      "max": {
+        "reasoningEffort": "max"
       }
     }
   },
@@ -262,8 +264,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -353,6 +354,12 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "variants": {
       "high": {
         "reasoningEffort": "high"
+      },
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
       }
     }
   },
@@ -360,7 +367,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Step 3.5 Flash",
     "limit": {
       "context": 262144,
-      "output": 65536
+      "output": 64000
     },
     "cost": {
       "input": 0.0143,
@@ -442,8 +449,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -769,7 +775,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio"
+        "audio",
+        "pdf"
       ],
       "output": [
         "text"
@@ -795,7 +802,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Inkling Small",
     "limit": {
       "context": 1000000,
-      "output": 1048576
+      "output": 262144
     },
     "cost": {
       "input": 0.0714,
@@ -816,6 +823,20 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "reasoning": true,
     "interleaved": {
       "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
+      },
+      "max": {
+        "reasoningEffort": "max"
+      }
     }
   },
   "xai/grok-4.6": {
@@ -833,7 +854,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       "output": [
         "text"

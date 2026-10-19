@@ -247,7 +247,6 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio",
         "pdf"
       ],
       output: [
@@ -267,6 +266,9 @@ var GOAT_MODELS = {
       },
       high: {
         reasoningEffort: "high"
+      },
+      max: {
+        reasoningEffort: "max"
       }
     }
   },
@@ -406,8 +408,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -497,6 +498,12 @@ var GOAT_MODELS = {
     variants: {
       high: {
         reasoningEffort: "high"
+      },
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
       }
     }
   },
@@ -504,7 +511,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 65536
+      output: 64000
     },
     cost: {
       input: 0.0143,
@@ -586,8 +593,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -913,7 +919,8 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio"
+        "audio",
+        "pdf"
       ],
       output: [
         "text"
@@ -939,7 +946,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 1048576
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -960,6 +967,20 @@ var GOAT_MODELS = {
     reasoning: true,
     interleaved: {
       field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      },
+      max: {
+        reasoningEffort: "max"
+      }
     }
   },
   "xai/grok-4.6": {
@@ -977,7 +998,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -1135,4 +1157,4 @@ export {
   toModelInfo
 };
 
-//# debugId=75A5A1BC4C7C355A64756E2164756E21
+//# debugId=8149416C5FC5959B64756E2164756E21
