@@ -362,7 +362,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 32768
+      output: 16384
     },
     cost: {
       input: 0.0214,
@@ -373,8 +373,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -390,6 +389,9 @@ var GOAT_MODELS = {
       },
       medium: {
         reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
       }
     }
   },
@@ -397,7 +399,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 64000
     },
     cost: {
       input: 0.052,
@@ -408,7 +410,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -578,22 +582,23 @@ var GOAT_MODELS = {
       }
     }
   },
-  "MiniMaxAI/MiniMax-M3": {
-    name: "MiniMax M3",
+  "minimax/minimax-m3.1-flash": {
+    name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 512000
+      output: 524288
     },
     cost: {
-      input: 0.015,
-      output: 0.045,
-      cache_read: 0.001,
+      input: 0.0214,
+      output: 0.0857,
+      cache_read: 0.0021,
       cache_write: 0
     },
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -864,6 +869,47 @@ var GOAT_MODELS = {
     },
     reasoning: false
   },
+  "minimax/minimax-m3.1-flash:free": {
+    name: "MiniMax M3.1 Flash (Free)",
+    limit: {
+      context: 1e6,
+      output: 524288
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text",
+        "image",
+        "video"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      },
+      max: {
+        reasoningEffort: "max"
+      }
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     name: "Kimi K2.7 Code",
     limit: {
@@ -998,8 +1044,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1157,4 +1202,4 @@ export {
   toModelInfo
 };
 
-//# debugId=8149416C5FC5959B64756E2164756E21
+//# debugId=898539D98BEE9F9064756E2164756E21

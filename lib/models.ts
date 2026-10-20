@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-19T02:36:23.458Z
+ * Last updated: 2026-10-20T02:48:40.979Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -218,7 +218,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Qwen 3.8 27B",
     "limit": {
       "context": 262144,
-      "output": 32768
+      "output": 16384
     },
     "cost": {
       "input": 0.0214,
@@ -229,8 +229,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -246,6 +245,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       },
       "medium": {
         "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
       }
     }
   },
@@ -253,7 +255,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "GLM 5.3 Flash",
     "limit": {
       "context": 1048576,
-      "output": 131072
+      "output": 64000
     },
     "cost": {
       "input": 0.052,
@@ -264,7 +266,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video",
+        "pdf"
       ],
       "output": [
         "text"
@@ -434,22 +438,23 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       }
     }
   },
-  "MiniMaxAI/MiniMax-M3": {
-    "name": "MiniMax M3",
+  "minimax/minimax-m3.1-flash": {
+    "name": "MiniMax M3.1 Flash",
     "limit": {
       "context": 1000000,
-      "output": 512000
+      "output": 524288
     },
     "cost": {
-      "input": 0.015,
-      "output": 0.045,
-      "cache_read": 0.001,
+      "input": 0.0214,
+      "output": 0.0857,
+      "cache_read": 0.0021,
       "cache_write": 0
     },
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       "output": [
         "text"
@@ -720,6 +725,47 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     },
     "reasoning": false
   },
+  "minimax/minimax-m3.1-flash:free": {
+    "name": "MiniMax M3.1 Flash (Free)",
+    "limit": {
+      "context": 1000000,
+      "output": 524288
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
+      },
+      "max": {
+        "reasoningEffort": "max"
+      }
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     "name": "Kimi K2.7 Code",
     "limit": {
@@ -854,8 +900,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
