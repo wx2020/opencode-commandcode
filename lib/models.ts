@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-22T02:40:52.478Z
+ * Last updated: 2026-10-23T02:44:57.165Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -372,7 +372,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Step 3.5 Flash",
     "limit": {
       "context": 262144,
-      "output": 65536
+      "output": 256000
     },
     "cost": {
       "input": 0.0143,
@@ -395,6 +395,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "variants": {
       "high": {
         "reasoningEffort": "high"
+      },
+      "low": {
+        "reasoningEffort": "low"
       }
     }
   },
@@ -922,8 +925,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"

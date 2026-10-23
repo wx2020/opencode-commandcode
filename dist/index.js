@@ -516,7 +516,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 65536
+      output: 256000
     },
     cost: {
       input: 0.0143,
@@ -539,6 +539,9 @@ var GOAT_MODELS = {
     variants: {
       high: {
         reasoningEffort: "high"
+      },
+      low: {
+        reasoningEffort: "low"
       }
     }
   },
@@ -1066,8 +1069,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1225,4 +1227,4 @@ export {
   toModelInfo
 };
 
-//# debugId=7CBBC224FD497BAB64756E2164756E21
+//# debugId=A9BE9FC6CD607D1C64756E2164756E21
