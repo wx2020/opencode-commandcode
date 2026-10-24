@@ -247,7 +247,6 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio",
         "pdf"
       ],
       output: [
@@ -363,7 +362,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 32768
+      output: 235929
     },
     cost: {
       input: 0.0214,
@@ -401,7 +400,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 128000
     },
     cost: {
       input: 0.052,
@@ -413,7 +412,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video"
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -590,7 +590,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 524288
+      output: 512000
     },
     cost: {
       input: 0.0214,
@@ -940,7 +940,7 @@ var GOAT_MODELS = {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 65536
+      output: 262144
     },
     cost: {
       input: 0.035,
@@ -951,7 +951,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -989,8 +990,6 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "audio",
         "pdf"
       ],
       output: [
@@ -1017,7 +1016,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 32768
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -1227,4 +1226,4 @@ export {
   toModelInfo
 };
 
-//# debugId=A9BE9FC6CD607D1C64756E2164756E21
+//# debugId=2BEF6A4994D9F04C64756E2164756E21
