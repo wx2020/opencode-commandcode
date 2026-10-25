@@ -362,7 +362,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 235929
+      output: 32768
     },
     cost: {
       input: 0.0214,
@@ -400,7 +400,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 128000
+      output: 64000
     },
     cost: {
       input: 0.052,
@@ -516,7 +516,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 256000
+      output: 65536
     },
     cost: {
       input: 0.0143,
@@ -590,7 +590,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 512000
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -990,6 +990,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
+        "video",
+        "audio",
         "pdf"
       ],
       output: [
@@ -1068,7 +1070,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -1226,4 +1229,4 @@ export {
   toModelInfo
 };
 
-//# debugId=2BEF6A4994D9F04C64756E2164756E21
+//# debugId=7EA0C9402D51BF8464756E2164756E21
