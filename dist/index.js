@@ -203,7 +203,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -232,7 +234,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 1048576
+      output: 943718
     },
     cost: {
       input: 0.018,
@@ -244,6 +246,7 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
+        "video",
         "pdf"
       ],
       output: [
@@ -359,7 +362,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 131072
+      output: 32768
     },
     cost: {
       input: 0.0214,
@@ -370,8 +373,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -397,7 +399,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 128000
+      output: 131072
     },
     cost: {
       input: 0.052,
@@ -408,9 +410,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -557,8 +557,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -947,9 +946,7 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text",
-        "image",
-        "video"
+        "text"
       ],
       output: [
         "text"
@@ -986,10 +983,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1015,7 +1009,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 1e6
+      output: 1048576
     },
     cost: {
       input: 0.0714,
@@ -1026,8 +1020,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1225,4 +1218,4 @@ export {
   toModelInfo
 };
 
-//# debugId=A2DAAC1FEED8FBD864756E2164756E21
+//# debugId=5F2D0275000FBE2A64756E2164756E21
