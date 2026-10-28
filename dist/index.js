@@ -185,6 +185,9 @@ var GOAT_MODELS = {
       },
       max: {
         reasoningEffort: "max"
+      },
+      medium: {
+        reasoningEffort: "medium"
       }
     }
   },
@@ -399,7 +402,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 128000
     },
     cost: {
       input: 0.052,
@@ -410,7 +413,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -513,7 +518,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 256000
+      output: 4096
     },
     cost: {
       input: 0.0143,
@@ -557,7 +562,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -586,7 +592,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 512000
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -946,7 +952,8 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text"
+        "text",
+        "image"
       ],
       output: [
         "text"
@@ -983,7 +990,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio"
       ],
       output: [
         "text"
@@ -1009,7 +1018,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 1048576
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -1020,7 +1029,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio"
       ],
       output: [
         "text"
@@ -1218,4 +1228,4 @@ export {
   toModelInfo
 };
 
-//# debugId=5F2D0275000FBE2A64756E2164756E21
+//# debugId=F8A66086AB76FD5164756E2164756E21
