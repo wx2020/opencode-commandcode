@@ -206,9 +206,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "audio",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -237,7 +235,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 943718
+      output: 1048576
     },
     cost: {
       input: 0.018,
@@ -249,7 +247,6 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
         "pdf"
       ],
       output: [
@@ -365,7 +362,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 32768
+      output: 16384
     },
     cost: {
       input: 0.0214,
@@ -402,7 +399,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 128000
+      output: 131072
     },
     cost: {
       input: 0.052,
@@ -413,9 +410,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -518,7 +513,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 4096
+      output: 256000
     },
     cost: {
       input: 0.0143,
@@ -592,7 +587,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 524288
+      output: 512000
     },
     cost: {
       input: 0.0214,
@@ -990,9 +985,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio"
+        "image"
       ],
       output: [
         "text"
@@ -1028,9 +1021,7 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text",
-        "image",
-        "audio"
+        "text"
       ],
       output: [
         "text"
@@ -1228,4 +1219,4 @@ export {
   toModelInfo
 };
 
-//# debugId=F8A66086AB76FD5164756E2164756E21
+//# debugId=2DAF71F223E1EAFC64756E2164756E21
