@@ -206,7 +206,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -235,7 +237,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 1048576
+      output: 943718
     },
     cost: {
       input: 0.018,
@@ -247,6 +249,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
+        "video",
+        "audio",
         "pdf"
       ],
       output: [
@@ -362,7 +366,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 16384
+      output: 262144
     },
     cost: {
       input: 0.0214,
@@ -373,7 +377,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -410,7 +415,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -587,7 +593,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 512000
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -937,7 +943,7 @@ var GOAT_MODELS = {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 262144
+      output: 65536
     },
     cost: {
       input: 0.035,
@@ -985,7 +991,10 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio",
+        "pdf"
       ],
       output: [
         "text"
@@ -1011,7 +1020,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 262144
+      output: 32768
     },
     cost: {
       input: 0.0714,
@@ -1021,7 +1030,9 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text"
+        "text",
+        "image",
+        "audio"
       ],
       output: [
         "text"
@@ -1219,4 +1230,4 @@ export {
   toModelInfo
 };
 
-//# debugId=2DAF71F223E1EAFC64756E2164756E21
+//# debugId=98A2C51CE263E4F664756E2164756E21
