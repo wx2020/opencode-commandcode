@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 384000
+      output: 50000
     },
     cost: {
       input: 0.021,
@@ -195,7 +195,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.02,
@@ -250,7 +250,6 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio",
         "pdf"
       ],
       output: [
@@ -324,7 +323,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Pro",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.0621,
@@ -366,7 +365,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 262144
+      output: 32768
     },
     cost: {
       input: 0.0214,
@@ -377,8 +376,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -415,8 +413,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -519,7 +516,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 256000
+      output: 65536
     },
     cost: {
       input: 0.0143,
@@ -709,7 +706,7 @@ var GOAT_MODELS = {
     name: "Laguna S 2.1 (Free)",
     limit: {
       context: 256000,
-      output: 32768
+      output: 32000
     },
     cost: {
       input: 0,
@@ -735,6 +732,9 @@ var GOAT_MODELS = {
       },
       high: {
         reasoningEffort: "high"
+      },
+      medium: {
+        reasoningEffort: "medium"
       }
     }
   },
@@ -939,11 +939,36 @@ var GOAT_MODELS = {
     },
     reasoning: false
   },
+  "inclusionai/ling-3.1-flash-1019:free": {
+    name: "Ling 3.1 Flash 1019 (Free)",
+    limit: {
+      context: 1e6,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 65536
+      output: 262144
     },
     cost: {
       input: 0.035,
@@ -991,10 +1016,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1020,7 +1042,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 32768
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -1230,4 +1252,4 @@ export {
   toModelInfo
 };
 
-//# debugId=98A2C51CE263E4F664756E2164756E21
+//# debugId=0D3EC9D95BD517B464756E2164756E21

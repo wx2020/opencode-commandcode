@@ -4,14 +4,14 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-10-30T03:45:28.208Z
+ * Last updated: 2026-10-31T03:29:04.312Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
     "name": "DeepSeek V4.1 Flash",
     "limit": {
       "context": 1000000,
-      "output": 384000
+      "output": 50000
     },
     "cost": {
       "input": 0.021,
@@ -51,7 +51,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "MiMo V2.6 Flash",
     "limit": {
       "context": 1048576,
-      "output": 131072
+      "output": 50000
     },
     "cost": {
       "input": 0.02,
@@ -106,7 +106,6 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio",
         "pdf"
       ],
       "output": [
@@ -180,7 +179,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "MiMo V2.6 Pro",
     "limit": {
       "context": 1048576,
-      "output": 131072
+      "output": 50000
     },
     "cost": {
       "input": 0.0621,
@@ -222,7 +221,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Qwen 3.8 27B",
     "limit": {
       "context": 262144,
-      "output": 262144
+      "output": 32768
     },
     "cost": {
       "input": 0.0214,
@@ -233,8 +232,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -271,8 +269,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -375,7 +372,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Step 3.5 Flash",
     "limit": {
       "context": 262144,
-      "output": 256000
+      "output": 65536
     },
     "cost": {
       "input": 0.0143,
@@ -565,7 +562,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Laguna S 2.1 (Free)",
     "limit": {
       "context": 256000,
-      "output": 32768
+      "output": 32000
     },
     "cost": {
       "input": 0,
@@ -591,6 +588,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       },
       "high": {
         "reasoningEffort": "high"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
       }
     }
   },
@@ -795,11 +795,36 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     },
     "reasoning": false
   },
+  "inclusionai/ling-3.1-flash-1019:free": {
+    "name": "Ling 3.1 Flash 1019 (Free)",
+    "limit": {
+      "context": 1000000,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     "name": "Kimi K2.7 Code",
     "limit": {
       "context": 256000,
-      "output": 65536
+      "output": 262144
     },
     "cost": {
       "input": 0.035,
@@ -847,10 +872,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
@@ -876,7 +898,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Inkling Small",
     "limit": {
       "context": 1000000,
-      "output": 32768
+      "output": 262144
     },
     "cost": {
       "input": 0.0714,
