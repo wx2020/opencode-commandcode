@@ -195,7 +195,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.02,
@@ -237,7 +237,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 943718
+      output: 131072
     },
     cost: {
       input: 0.018,
@@ -250,7 +250,8 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "pdf"
+        "pdf",
+        "audio"
       ],
       output: [
         "text"
@@ -323,7 +324,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Pro",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.0621,
@@ -365,7 +366,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 235929
+      output: 131072
     },
     cost: {
       input: 0.0214,
@@ -414,7 +415,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -517,7 +520,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 65536
+      output: 256000
     },
     cost: {
       input: 0.0143,
@@ -591,7 +594,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 128000
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -602,7 +605,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -979,7 +983,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -1255,4 +1260,4 @@ export {
   toModelInfo
 };
 
-//# debugId=3B93D5CBDC7F713864756E2164756E21
+//# debugId=021E72AF32E27C2764756E2164756E21
