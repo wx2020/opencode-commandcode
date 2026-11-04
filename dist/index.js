@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 384000
+      output: 943718
     },
     cost: {
       input: 0.021,
@@ -195,7 +195,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Flash",
     limit: {
       context: 1048576,
-      output: 50000
+      output: 131072
     },
     cost: {
       input: 0.02,
@@ -237,7 +237,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 943718
     },
     cost: {
       input: 0.018,
@@ -250,8 +250,7 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "pdf",
-        "audio"
+        "pdf"
       ],
       output: [
         "text"
@@ -324,7 +323,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Pro",
     limit: {
       context: 1048576,
-      output: 50000
+      output: 131072
     },
     cost: {
       input: 0.0621,
@@ -366,7 +365,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 131072
+      output: 16384
     },
     cost: {
       input: 0.0214,
@@ -377,8 +376,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -416,8 +414,7 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "pdf"
+        "video"
       ],
       output: [
         "text"
@@ -520,7 +517,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 256000
+      output: 4096
     },
     cost: {
       input: 0.0143,
@@ -972,7 +969,7 @@ var GOAT_MODELS = {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 262144
+      output: 235929
     },
     cost: {
       input: 0.035,
@@ -983,8 +980,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -1260,4 +1256,4 @@ export {
   toModelInfo
 };
 
-//# debugId=021E72AF32E27C2764756E2164756E21
+//# debugId=4CAD7043F5216E6664756E2164756E21
