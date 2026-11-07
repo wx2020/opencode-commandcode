@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 943718
+      output: 384000
     },
     cost: {
       input: 0.021,
@@ -377,8 +377,7 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
-        "pdf"
+        "video"
       ],
       output: [
         "text"
@@ -404,7 +403,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 943717
+      output: 131072
     },
     cost: {
       input: 0.052,
@@ -519,7 +518,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 65536
+      output: 4096
     },
     cost: {
       input: 0.0143,
@@ -563,8 +562,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -971,7 +969,7 @@ var GOAT_MODELS = {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 235929
+      output: 262144
     },
     cost: {
       input: 0.035,
@@ -982,7 +980,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -1019,10 +1018,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1058,9 +1054,7 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text",
-        "image",
-        "audio"
+        "text"
       ],
       output: [
         "text"
@@ -1100,8 +1094,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1259,4 +1252,4 @@ export {
   toModelInfo
 };
 
-//# debugId=F9D10B561DDF21FD64756E2164756E21
+//# debugId=87D673E5CEFC067A64756E2164756E21

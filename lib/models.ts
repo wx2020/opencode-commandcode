@@ -4,14 +4,14 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-11-06T04:28:18.021Z
+ * Last updated: 2026-11-07T03:54:49.056Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
     "name": "DeepSeek V4.1 Flash",
     "limit": {
       "context": 1000000,
-      "output": 943718
+      "output": 384000
     },
     "cost": {
       "input": 0.021,
@@ -233,8 +233,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "input": [
         "text",
         "image",
-        "video",
-        "pdf"
+        "video"
       ],
       "output": [
         "text"
@@ -260,7 +259,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "GLM 5.3 Flash",
     "limit": {
       "context": 1048576,
-      "output": 943717
+      "output": 131072
     },
     "cost": {
       "input": 0.052,
@@ -375,7 +374,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Step 3.5 Flash",
     "limit": {
       "context": 262144,
-      "output": 65536
+      "output": 4096
     },
     "cost": {
       "input": 0.0143,
@@ -419,8 +418,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
@@ -827,7 +825,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Kimi K2.7 Code",
     "limit": {
       "context": 256000,
-      "output": 235929
+      "output": 262144
     },
     "cost": {
       "input": 0.035,
@@ -838,7 +836,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       "output": [
         "text"
@@ -875,10 +874,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video",
-        "audio",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
@@ -914,9 +910,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     },
     "modalities": {
       "input": [
-        "text",
-        "image",
-        "audio"
+        "text"
       ],
       "output": [
         "text"
@@ -956,8 +950,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
