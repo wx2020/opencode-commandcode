@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 384000
+      output: 393216
     },
     cost: {
       input: 0.021,
@@ -195,7 +195,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.02,
@@ -237,7 +237,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 943718
+      output: 1048576
     },
     cost: {
       input: 0.018,
@@ -249,7 +249,6 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video",
         "pdf"
       ],
       output: [
@@ -323,7 +322,7 @@ var GOAT_MODELS = {
     name: "MiMo V2.6 Pro",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.0621,
@@ -365,7 +364,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 32768
+      output: 131072
     },
     cost: {
       input: 0.0214,
@@ -403,7 +402,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 50000
     },
     cost: {
       input: 0.052,
@@ -415,7 +414,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video"
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -518,7 +518,7 @@ var GOAT_MODELS = {
     name: "Step 3.5 Flash",
     limit: {
       context: 262144,
-      output: 4096
+      output: 65536
     },
     cost: {
       input: 0.0143,
@@ -562,7 +562,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -1018,7 +1019,10 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video",
+        "audio",
+        "pdf"
       ],
       output: [
         "text"
@@ -1044,7 +1048,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 262144
+      output: 1048576
     },
     cost: {
       input: 0.0714,
@@ -1054,7 +1058,9 @@ var GOAT_MODELS = {
     },
     modalities: {
       input: [
-        "text"
+        "text",
+        "image",
+        "audio"
       ],
       output: [
         "text"
@@ -1094,7 +1100,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -1252,4 +1259,4 @@ export {
   toModelInfo
 };
 
-//# debugId=87D673E5CEFC067A64756E2164756E21
+//# debugId=E7F0D22A67FFC87864756E2164756E21
