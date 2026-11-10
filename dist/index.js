@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 32768
+      output: 384000
     },
     cost: {
       input: 0.021,
@@ -166,8 +166,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -207,7 +206,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -236,7 +237,7 @@ var GOAT_MODELS = {
     name: "Muse Spark 1.3 Contributor",
     limit: {
       context: 1048576,
-      output: 1048576
+      output: 943718
     },
     cost: {
       input: 0.018,
@@ -248,6 +249,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
+        "video",
+        "audio",
         "pdf"
       ],
       output: [
@@ -332,7 +335,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -361,7 +366,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 131072
+      output: 235929
     },
     cost: {
       input: 0.0214,
@@ -411,7 +416,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video"
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -588,7 +594,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 1048576
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -599,7 +605,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -965,7 +972,7 @@ var GOAT_MODELS = {
     name: "Kimi K2.7 Code",
     limit: {
       context: 256000,
-      output: 32768
+      output: 256000
     },
     cost: {
       input: 0.035,
@@ -976,8 +983,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1003,7 +1009,7 @@ var GOAT_MODELS = {
     name: "Gemini 3.8 Flash",
     limit: {
       context: 1e6,
-      output: 65535
+      output: 65536
     },
     cost: {
       input: 0.1071,
@@ -1015,6 +1021,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
+        "video",
+        "audio",
         "pdf"
       ],
       output: [
@@ -1041,7 +1049,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 1e6
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -1053,7 +1061,7 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "pdf"
+        "audio"
       ],
       output: [
         "text"
@@ -1093,7 +1101,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -1251,4 +1260,4 @@ export {
   toModelInfo
 };
 
-//# debugId=9096C601B380080164756E2164756E21
+//# debugId=327A3740344ED1DC64756E2164756E21
