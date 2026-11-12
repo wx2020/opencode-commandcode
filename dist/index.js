@@ -206,9 +206,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "audio",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -335,9 +333,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "audio",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -377,7 +373,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -403,7 +400,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 128000
+      output: 131072
     },
     cost: {
       input: 0.052,
@@ -415,7 +412,8 @@ var GOAT_MODELS = {
       input: [
         "text",
         "image",
-        "video"
+        "video",
+        "pdf"
       ],
       output: [
         "text"
@@ -562,7 +560,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "pdf"
       ],
       output: [
         "text"
@@ -591,7 +590,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 128000
+      output: 1048576
     },
     cost: {
       input: 0.0214,
@@ -979,8 +978,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -1046,7 +1044,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 262144
+      output: 1e6
     },
     cost: {
       input: 0.0714,
@@ -1098,8 +1096,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1257,4 +1254,4 @@ export {
   toModelInfo
 };
 
-//# debugId=C8CF49EA7C6F005964756E2164756E21
+//# debugId=B9E4A44E02ED6E4D64756E2164756E21
