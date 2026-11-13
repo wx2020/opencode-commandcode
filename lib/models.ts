@@ -4,7 +4,7 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-11-12T05:06:24.023Z
+ * Last updated: 2026-11-13T04:22:10.739Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
@@ -62,7 +62,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       "output": [
         "text"
@@ -189,7 +191,9 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       "output": [
         "text"
@@ -218,7 +222,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Qwen 3.8 27B",
     "limit": {
       "context": 262144,
-      "output": 32768
+      "output": 235929
     },
     "cost": {
       "input": 0.0214,
@@ -256,7 +260,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "GLM 5.3 Flash",
     "limit": {
       "context": 1048576,
-      "output": 131072
+      "output": 128000
     },
     "cost": {
       "input": 0.052,
@@ -446,7 +450,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "MiniMax M3.1 Flash",
     "limit": {
       "context": 1000000,
-      "output": 1048576
+      "output": 524288
     },
     "cost": {
       "input": 0.0214,
@@ -457,7 +461,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       "output": [
         "text"
@@ -819,6 +824,46 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
       "field": "reasoning_content"
     }
   },
+  "thinkingmachines/inkling-2-small:free": {
+    "name": "Inkling 2 Small (Free)",
+    "limit": {
+      "context": 1048576,
+      "output": 131072
+    },
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "cache_write": 0
+    },
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "reasoning": true,
+    "interleaved": {
+      "field": "reasoning_content"
+    },
+    "variants": {
+      "low": {
+        "reasoningEffort": "low"
+      },
+      "medium": {
+        "reasoningEffort": "medium"
+      },
+      "high": {
+        "reasoningEffort": "high"
+      },
+      "max": {
+        "reasoningEffort": "max"
+      }
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     "name": "Kimi K2.7 Code",
     "limit": {
@@ -834,7 +879,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       "output": [
         "text"
@@ -873,8 +919,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio",
-        "pdf"
+        "audio"
       ],
       "output": [
         "text"
@@ -900,7 +945,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Inkling Small",
     "limit": {
       "context": 1000000,
-      "output": 1000000
+      "output": 262144
     },
     "cost": {
       "input": 0.0714,

@@ -3,6 +3,6 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-11-12T05:06:24.023Z
+ * Last updated: 2026-11-13T04:22:10.739Z
  */
 export declare const GOAT_MODELS: Record<string, CommandCodeModelDefinition>;

@@ -206,7 +206,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -333,7 +335,9 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "audio",
+        "video"
       ],
       output: [
         "text"
@@ -362,7 +366,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 32768
+      output: 235929
     },
     cost: {
       input: 0.0214,
@@ -400,7 +404,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 131072
+      output: 128000
     },
     cost: {
       input: 0.052,
@@ -590,7 +594,7 @@ var GOAT_MODELS = {
     name: "MiniMax M3.1 Flash",
     limit: {
       context: 1e6,
-      output: 1048576
+      output: 524288
     },
     cost: {
       input: 0.0214,
@@ -601,7 +605,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -963,6 +968,46 @@ var GOAT_MODELS = {
       field: "reasoning_content"
     }
   },
+  "thinkingmachines/inkling-2-small:free": {
+    name: "Inkling 2 Small (Free)",
+    limit: {
+      context: 1048576,
+      output: 131072
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache_read: 0,
+      cache_write: 0
+    },
+    modalities: {
+      input: [
+        "text",
+        "image"
+      ],
+      output: [
+        "text"
+      ]
+    },
+    reasoning: true,
+    interleaved: {
+      field: "reasoning_content"
+    },
+    variants: {
+      low: {
+        reasoningEffort: "low"
+      },
+      medium: {
+        reasoningEffort: "medium"
+      },
+      high: {
+        reasoningEffort: "high"
+      },
+      max: {
+        reasoningEffort: "max"
+      }
+    }
+  },
   "moonshotai/Kimi-K2.7-Code": {
     name: "Kimi K2.7 Code",
     limit: {
@@ -978,7 +1023,8 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image"
+        "image",
+        "video"
       ],
       output: [
         "text"
@@ -1017,8 +1063,7 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio",
-        "pdf"
+        "audio"
       ],
       output: [
         "text"
@@ -1044,7 +1089,7 @@ var GOAT_MODELS = {
     name: "Inkling Small",
     limit: {
       context: 1e6,
-      output: 1e6
+      output: 262144
     },
     cost: {
       input: 0.0714,
@@ -1254,4 +1299,4 @@ export {
   toModelInfo
 };
 
-//# debugId=B9E4A44E02ED6E4D64756E2164756E21
+//# debugId=50D0ECA308628C3664756E2164756E21
