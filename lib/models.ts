@@ -4,14 +4,14 @@ import type { CommandCodeModelDefinition } from "./types.js";
  * Curated Latest-Generation Model Lineup for CommandCode GOAT Plan
  * Automatically synchronized with CommandCode API & models.dev specifications.
  * Previous-generation obsolete versions are automatically filtered out.
- * Last updated: 2026-11-13T04:22:10.739Z
+ * Last updated: 2026-11-14T04:18:05.469Z
  */
 export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
   "deepseek/deepseek-v4.1-flash": {
     "name": "DeepSeek V4.1 Flash",
     "limit": {
       "context": 1000000,
-      "output": 384000
+      "output": 393216
     },
     "cost": {
       "input": 0.021,
@@ -62,9 +62,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "audio",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -222,7 +220,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "Qwen 3.8 27B",
     "limit": {
       "context": 262144,
-      "output": 235929
+      "output": 262144
     },
     "cost": {
       "input": 0.0214,
@@ -260,7 +258,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "name": "GLM 5.3 Flash",
     "limit": {
       "context": 1048576,
-      "output": 128000
+      "output": 131072
     },
     "cost": {
       "input": 0.052,
@@ -271,9 +269,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video",
-        "pdf"
+        "image"
       ],
       "output": [
         "text"
@@ -879,8 +875,7 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
     "modalities": {
       "input": [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       "output": [
         "text"
@@ -919,7 +914,8 @@ export const GOAT_MODELS: Record<string, CommandCodeModelDefinition> = {
         "text",
         "image",
         "video",
-        "audio"
+        "audio",
+        "pdf"
       ],
       "output": [
         "text"

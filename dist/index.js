@@ -155,7 +155,7 @@ var GOAT_MODELS = {
     name: "DeepSeek V4.1 Flash",
     limit: {
       context: 1e6,
-      output: 384000
+      output: 393216
     },
     cost: {
       input: 0.021,
@@ -206,9 +206,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "audio",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -366,7 +364,7 @@ var GOAT_MODELS = {
     name: "Qwen 3.8 27B",
     limit: {
       context: 262144,
-      output: 235929
+      output: 262144
     },
     cost: {
       input: 0.0214,
@@ -404,7 +402,7 @@ var GOAT_MODELS = {
     name: "GLM 5.3 Flash",
     limit: {
       context: 1048576,
-      output: 128000
+      output: 131072
     },
     cost: {
       input: 0.052,
@@ -415,9 +413,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video",
-        "pdf"
+        "image"
       ],
       output: [
         "text"
@@ -1023,8 +1019,7 @@ var GOAT_MODELS = {
     modalities: {
       input: [
         "text",
-        "image",
-        "video"
+        "image"
       ],
       output: [
         "text"
@@ -1063,7 +1058,8 @@ var GOAT_MODELS = {
         "text",
         "image",
         "video",
-        "audio"
+        "audio",
+        "pdf"
       ],
       output: [
         "text"
@@ -1299,4 +1295,4 @@ export {
   toModelInfo
 };
 
-//# debugId=50D0ECA308628C3664756E2164756E21
+//# debugId=4C031E05BD4F03FF64756E2164756E21
